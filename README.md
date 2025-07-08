@@ -39,18 +39,18 @@ Our system is built on three distinct but interconnected pillars, creating a pow
 | ML Risk Assessment Model |<---->|   AI Agent (Python)    |----->| On-Chain Vault        |
 | (Scikit-learn)           |      | (LangChain & FastAPI)   |      | (Solidity / ERC-4626) |
 +--------------------------+      +------------------------+      +-----------------------+
-^                                                            | (deploys to)
-| (scores risk)                                              |
-|                                                            v
-+------------------------------------------------------+-----------------------+
-| EulerSwapStrategy     |
-+-----------------------+
-|
-v
-+-----------------------+
-| EulerSwap LP Position |
-+-----------------------+
-
+           ^                                                            | (deploys to)
+           | (scores risk)                                              |
+           |                                                            v
+           +------------------------------------------------------+-----------------------+
+                                                                  | EulerSwapStrategy     |
+                                                                  +-----------------------+
+                                                                            |
+                                                                            v
+                                                                  +-----------------------+
+                                                                  | EulerSwap LP Position |
+                                                                  +-----------------------+
+                                                                  
 
 ### On-Chain Layer: The Foundation
 
@@ -109,6 +109,8 @@ This is our most innovative component—a proactive security layer that goes bey
 ## Getting Started & How to Run
 
 Follow these steps to run the entire system locally.
+
+### 0. Re-deploy the contracts
 
 #### 1. Add your environment variables
 

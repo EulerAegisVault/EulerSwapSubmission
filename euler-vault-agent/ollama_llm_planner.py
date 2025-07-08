@@ -1,5 +1,5 @@
 """
-euler-specific OpenAI LLM Planner for euler (NEAR EVM) vault strategies
+Unichain-specific OpenAI LLM Planner for EulerSwap vault strategies
 """
 
 import json
@@ -11,11 +11,11 @@ from langchain.tools import tool
 
 load_dotenv()
 
-class eulerOpenAILLMPlanner:
-    """LLM Planner using OpenAI for euler-specific strategy generation"""
+class UnichainOpenAILLMPlanner:
+    """LLM Planner using OpenAI for Unichain-specific strategy generation"""
     
     def __init__(self, config: Dict[str, Any]):
-        """Initialize with OpenAI configuration for euler"""
+        """Initialize with OpenAI configuration for Unichain"""
         self.config = config
         self.provider = config.get('provider', 'openai')
         self.model = config.get('model', 'gpt-4o-mini')
@@ -27,73 +27,71 @@ class eulerOpenAILLMPlanner:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
         
-        print(f"🤖 euler LLM Provider: {self.provider}")
+        print(f"🤖 Unichain LLM Provider: {self.provider}")
         print(f"🧠 Model: {self.model}")
     
-    def generate_euler_vault_strategy(self, market_data: Dict[str, Any], vault_status: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate euler vault management strategy using OpenAI"""
+    def generate_unichain_vault_strategy(self, market_data: Dict[str, Any], vault_status: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate Unichain vault management strategy using OpenAI"""
         
         prompt = f"""
-You are an expert DeFi vault manager for euler (NEAR's EVM layer) prize savings protocol.
+You are an expert DeFi vault manager for Unichain EulerSwap protocol.
 
-Current euler Vault Status:
-- Liquid USDC: {vault_status.get('liquid_usdc', 0)} USDC
-- Prize Pool: {vault_status.get('prize_pool', 0)} USDC  
-- Last Winner: {vault_status.get('last_winner', 'None')}
-- euler Network: NEAR EVM Layer (Chain ID: 1313161555)
+Current Unichain Vault Status:
+- USDC Vault Assets: {vault_status.get('usdc_vault_assets', 0)} USDC
+- WETH Vault Assets: {vault_status.get('weth_vault_assets', 0)} WETH
+- Strategy Balance: {vault_status.get('strategy_balance', 0)} USDC
+- Agent Address: {vault_status.get('agent_address', 'N/A')}
 - Situation: {vault_status.get('situation', 'Normal operations')}
 
-euler Ecosystem Context:
-- euler VRF Available: {market_data.get('euler_vrf_available', True)}
-- Ref Finance (DEX): ~15.2% APY, Medium Risk
-- Trisolaris (AMM): ~12.8% APY, Medium Risk  
-- Bastion (Lending): ~9.1% APY, Low Risk
-- Pulsar Finance: Advanced DeFi strategies
-- Beefy Finance: Auto-compounding vaults
-- Gas Conditions: {market_data.get('gas_price', 'Low (euler advantage)')}
+Unichain Ecosystem Context:
+- EulerSwap Integration: {market_data.get('eulerswap_available', True)}
+- EulerSwap Factory: Available for pool creation
+- eVault Integration: USDC and WETH eVaults connected
+- Gas Conditions: {market_data.get('gas_price', 'Low (Unichain advantage)')}
+- Bridge Status: Ethereum L2 with fast finality
 
-euler Ecosystem Advantages:
-- EVM compatibility with lower gas costs
-- NEAR's fast finality and security
-- Bridge to NEAR ecosystem
-- Growing DeFi ecosystem
-- Ethereum tooling compatibility
+Unichain Ecosystem Advantages:
+- Ethereum compatibility with lower gas costs
+- Fast transaction finality (1-2 seconds)
+- Native EulerSwap integration
+- eVault yield opportunities
+- Bridge to Ethereum mainnet
 
-TASK: Generate a safe euler vault management strategy focusing on:
-1. Prize pool optimization for weekly euler VRF lottery
+TASK: Generate a safe Unichain vault management strategy focusing on:
+1. EulerSwap pool optimization and liquidity provision
 2. User fund safety (top priority) 
 3. Risk management and security
-4. euler ecosystem yield opportunities
-5. Weekly lottery prize generation
+4. eVault yield opportunities
+5. Efficient capital allocation
 
 Respond with ONLY valid JSON in this exact format:
 {{
-    "strategy_type": "euler_vault_management",
-    "primary_action": "optimize_prize_pool",
+    "strategy_type": "unichain_vault_management",
+    "primary_action": "optimize_eulerswap_liquidity",
     "risk_level": "low",
-    "euler_chain_id": 1313161555,
+    "unichain_chain_id": 130,
     "actions": [
         {{
-            "action_type": "simulate_euler_yield_harvest_and_deposit",
+            "action_type": "deploy_to_strategy",
             "parameters": {{
-                "amount_usdc": 150.0
+                "amount": 100.0
             }},
             "priority": 1,
-            "reasoning": "Generate weekly euler lottery prize pool"
+            "reasoning": "Deploy funds to EulerSwap strategy for yield generation"
         }}
     ],
     "expected_outcome": {{
-        "prize_pool_target": 150.0,
-        "risk_score": 0.2,
+        "target_apy": 8.5,
+        "risk_score": 0.3,
         "estimated_timeline": "immediate",
-        "euler_advantages": "Lower gas costs, EVM compatibility, NEAR security"
+        "unichain_advantages": "Lower gas costs, fast finality, EulerSwap integration"
     }},
     "recommendations": [
-        "Create modest weekly prize pool using euler VRF",
-        "Maintain low risk approach on euler",
-        "Consider Ref Finance for higher yields when appropriate",
-        "Leverage euler's EVM compatibility and NEAR ecosystem",
-        "Monitor Bastion for lending opportunities"
+        "Optimize EulerSwap liquidity provision",
+        "Maintain conservative risk approach",
+        "Leverage eVault yield opportunities",
+        "Monitor pool performance regularly",
+        "Utilize Unichain's low gas advantage"
     ]
 }}
 """
@@ -114,7 +112,7 @@ Respond with ONLY valid JSON in this exact format:
                     "messages": [
                         {
                             "role": "system", 
-                            "content": "You are an euler DeFi vault manager expert. Respond only with valid JSON strategy objects optimized for euler (NEAR EVM). No additional text."
+                            "content": "You are a Unichain DeFi vault manager expert. Respond only with valid JSON strategy objects optimized for Unichain EulerSwap. No additional text."
                         },
                         {
                             "role": "user", 
@@ -129,20 +127,20 @@ Respond with ONLY valid JSON in this exact format:
             
             if response.status_code != 200:
                 print(f"❌ OpenAI API error: {response.status_code} - {response.text}")
-                return self._fallback_euler_strategy()
+                return self._fallback_unichain_strategy()
             
             result = response.json()
             content = result['choices'][0]['message']['content']
             
-            print(f"🤖 OpenAI euler Response: {content[:200]}...")
+            print(f"🤖 OpenAI Unichain Response: {content[:200]}...")
             
             # Extract JSON from response
             strategy = self._extract_json_from_response(content)
-            return strategy if strategy else self._fallback_euler_strategy()
+            return strategy if strategy else self._fallback_unichain_strategy()
             
         except Exception as e:
-            print(f"⚠️ OpenAI euler generation failed: {e}")
-            return self._fallback_euler_strategy()
+            print(f"⚠️ OpenAI Unichain generation failed: {e}")
+            return self._fallback_unichain_strategy()
     
     def _extract_json_from_response(self, content: str) -> Optional[Dict[str, Any]]:
         """Extract JSON strategy from LLM response"""
@@ -160,32 +158,32 @@ Respond with ONLY valid JSON in this exact format:
                 pass
         return None
     
-    def _fallback_euler_strategy(self) -> Dict[str, Any]:
-        """Fallback euler strategy when LLM fails"""
+    def _fallback_unichain_strategy(self) -> Dict[str, Any]:
+        """Fallback Unichain strategy when LLM fails"""
         return {
-            "strategy_type": "euler_vault_management",
-            "primary_action": "optimize_prize_pool",
+            "strategy_type": "unichain_vault_management",
+            "primary_action": "optimize_eulerswap_liquidity",
             "risk_level": "low",
-            "euler_chain_id": 1313161555,
+            "unichain_chain_id": 130,
             "actions": [
                 {
-                    "action_type": "simulate_euler_yield_harvest_and_deposit",
-                    "parameters": {"amount_usdc": 150.0},
+                    "action_type": "deploy_to_strategy",
+                    "parameters": {"amount": 100.0},
                     "priority": 1,
-                    "reasoning": "Fallback: Generate modest euler prize pool for weekly lottery"
+                    "reasoning": "Fallback: Deploy modest amount to EulerSwap strategy"
                 }
             ],
             "expected_outcome": {
-                "prize_pool_target": 150.0,
-                "risk_score": 0.2,
+                "target_apy": 8.5,
+                "risk_score": 0.3,
                 "estimated_timeline": "immediate",
-                "euler_advantages": "Lower gas costs, EVM compatibility, NEAR security"
+                "unichain_advantages": "Lower gas costs, fast finality, EulerSwap integration"
             },
             "recommendations": [
                 "Use fallback strategy due to LLM unavailability",
-                "Generate modest prize pool for weekly euler lottery",
-                "Leverage euler's unique advantages over Ethereum",
-                "Consider euler DeFi ecosystem opportunities (Ref, Trisolaris, Bastion)"
+                "Deploy conservative amount to EulerSwap strategy",
+                "Leverage Unichain's unique advantages",
+                "Monitor eVault yield opportunities"
             ]
         }
     
@@ -211,18 +209,18 @@ Respond with ONLY valid JSON in this exact format:
             return False
 
 
-# Enhanced agent tool using euler-specific OpenAI LLM planner
+# Enhanced agent tool using Unichain-specific OpenAI LLM planner
 @tool
 def ai_strategy_advisor(current_situation: str = "general_analysis") -> str:
     """
-    Use OpenAI to analyze current euler vault situation and recommend strategies.
+    Use OpenAI to analyze current Unichain vault situation and recommend strategies.
     
     Args:
-        current_situation: Description of the current euler situation to analyze
+        current_situation: Description of the current Unichain situation to analyze
     """
-    print(f"Tool: ai_strategy_advisor - euler Situation: {current_situation}")
+    print(f"Tool: ai_strategy_advisor - Unichain Situation: {current_situation}")
     
-    # Initialize euler-specific OpenAI LLM planner
+    # Initialize Unichain-specific OpenAI LLM planner
     llm_config = {
         'provider': 'openai',
         'model': 'gpt-4o-mini',
@@ -231,51 +229,52 @@ def ai_strategy_advisor(current_situation: str = "general_analysis") -> str:
     }
     
     try:
-        planner = eulerOpenAILLMPlanner(llm_config)
+        planner = UnichainOpenAILLMPlanner(llm_config)
         
         # Check if OpenAI API is available
         if not planner.check_api_available():
             return """
-❌ OpenAI API not available for euler strategies. 
+❌ OpenAI API not available for Unichain strategies. 
 
 Please check:
 1. OPENAI_API_KEY is set in .env file
 2. API key is valid and has credits
 3. Internet connection is working
 
-Using fallback euler rule-based strategy instead.
+Using fallback Unichain rule-based strategy instead.
             """
         
-        # Get current euler vault status (dynamic from your actual contracts)
+        # Get current Unichain vault status (dynamic from actual contracts)
         vault_status = {
-            "liquid_usdc": 290.0,  # From your health check
-            "prize_pool": 0.0,
-            "last_winner": "0x0000000000000000000000000000000000000000",
-            "strategy_type": "euler_vrf_lottery",
-            "euler_chain_id": 1313161555,
-            "situation": current_situation
+            "usdc_vault_assets": 500.0,  # Would be dynamic in real implementation
+            "weth_vault_assets": 1.0,
+            "strategy_balance": 100.0,
+            "strategy_type": "eulerswap_liquidity",
+            "unichain_chain_id": 130,
+            "situation": current_situation,
+            "agent_address": "0x07a1FbD44B35e1EaF1479c14C9ea9b4d30b78D56"  # From deployment
         }
         
         market_data = {
-            "euler_vrf_available": True,
-            "gas_price": "low",  # euler advantage
+            "eulerswap_available": True,
+            "gas_price": "low",  # Unichain advantage
             "risk_model_available": True,
             "situation_description": current_situation,
-            "ref_finance_apy": 15.2,
-            "trisolaris_apy": 12.8,
-            "bastion_apy": 9.1
+            "evault_usdc_apy": 5.2,
+            "evault_weth_apy": 4.8,
+            "eulerswap_pool_apy": 8.5
         }
         
-        # Generate euler strategy using OpenAI
-        strategy = planner.generate_euler_vault_strategy(market_data, vault_status)
+        # Generate Unichain strategy using OpenAI
+        strategy = planner.generate_unichain_vault_strategy(market_data, vault_status)
         
         return f"""
-🤖 AI Strategy Recommendation (OpenAI for euler):
+🤖 AI Strategy Recommendation (OpenAI for Unichain):
 
 Strategy Type: {strategy['strategy_type']}
 Primary Action: {strategy['primary_action']}
 Risk Level: {strategy['risk_level']}
-euler Chain ID: {strategy.get('euler_chain_id', 1313161555)}
+Unichain Chain ID: {strategy.get('unichain_chain_id', 130)}
 
 Actions to Take:
 {json.dumps(strategy['actions'], indent=2)}
@@ -286,16 +285,16 @@ Expected Outcome:
 AI Recommendations:
 {json.dumps(strategy['recommendations'], indent=2)}
 
-🌐 euler Advantages: Lower gas costs, EVM compatibility, NEAR ecosystem access, fast finality
+🌐 Unichain Advantages: Lower gas costs, fast finality, EulerSwap integration, eVault yields
         """
         
     except Exception as e:
-        return f"❌ euler AI strategy advisor failed: {e}\n\nUsing fallback: Recommend 150 USDC yield harvest for weekly euler lottery with low gas costs."
+        return f"❌ Unichain AI strategy advisor failed: {e}\n\nUsing fallback: Recommend conservative EulerSwap strategy deployment with low gas costs."
 
 
 # Test function
-def test_euler_openai_connection():
-    """Test OpenAI connection for euler strategies"""
+def test_unichain_openai_connection():
+    """Test OpenAI connection for Unichain strategies"""
     config = {
         'provider': 'openai',
         'model': 'gpt-4o-mini',
@@ -304,15 +303,15 @@ def test_euler_openai_connection():
     }
     
     try:
-        planner = eulerOpenAILLMPlanner(config)
+        planner = UnichainOpenAILLMPlanner(config)
         available = planner.check_api_available()
-        print(f"✅ OpenAI API Available for euler: {available}")
+        print(f"✅ OpenAI API Available for Unichain: {available}")
         return available
     except Exception as e:
-        print(f"❌ OpenAI euler Test Failed: {e}")
+        print(f"❌ OpenAI Unichain Test Failed: {e}")
         return False
 
 
 if __name__ == "__main__":
-    print("🧪 Testing euler OpenAI LLM Planner...")
-    test_euler_openai_connection()
+    print("🧪 Testing Unichain OpenAI LLM Planner...")
+    test_unichain_openai_connection()

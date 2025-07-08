@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "../core/VaultFactorySlim.sol";
+import "../core/StrategyFactory.sol"; // Import the new StrategyFactory
 import "../core/Vault.sol";
 import "../mocks/MockUSDC.sol";
 import "../mocks/MockWETH.sol";
@@ -28,6 +29,7 @@ contract UnichainDeployment {
     
     struct DeploymentResult {
         address vaultFactory;
+        address strategyFactory; // Added strategy factory address
         address mockUSDC;
         address mockWETH;
         address usdcVault;
@@ -56,6 +58,7 @@ contract UnichainDeployment {
     event SystemDeployed(
         address indexed deployer,
         address vaultFactory,
+        address strategyFactory,
         address usdcVault,
         address wethVault,
         address strategy
@@ -69,11 +72,6 @@ contract UnichainDeployment {
     error DeploymentFailed(string step);
 
     /// @notice Deploy the complete EulerSwap vault system
-    /// @param treasury Address to receive fees
-    /// @param manager Default manager for vaults
-    /// @param agent Default agent for vaults
-    /// @param eVaultUSDC Address of USDC Euler vault (must be provided)
-    /// @param eVaultWETH Address of WETH Euler vault (must be provided)
     function deploySystem(
         address treasury,
         address manager,
@@ -105,8 +103,11 @@ contract UnichainDeployment {
         
         // 2. Deploy vault factory
         result.vaultFactory = _deployVaultFactorySlim(treasury, manager, agent);
+
+        // 3. Deploy strategy factory
+        result.strategyFactory = _deployStrategyFactory();
         
-        // 3. Create USDC vault
+        // 4. Create USDC vault
         (result.usdcVault, result.usdcVaultId) = _createUSDCVault(
             result.vaultFactory, 
             result.mockUSDC, 
@@ -114,7 +115,7 @@ contract UnichainDeployment {
             agent
         );
         
-        // 4. Create WETH vault
+        // 5. Create WETH vault
         (result.wethVault, result.wethVaultId) = _createWETHVault(
             result.vaultFactory, 
             result.mockWETH, 
@@ -122,9 +123,9 @@ contract UnichainDeployment {
             agent
         );
         
-        // 5. Create EulerSwap strategy for USDC/WETH pair
+        // 6. Create EulerSwap strategy for USDC/WETH pair using the new StrategyFactory
         (result.usdcWethStrategy, result.strategyId) = _createEulerSwapStrategy(
-            result.vaultFactory,
+            result.strategyFactory, // Use the new strategy factory
             result.usdcVault,
             result.mockUSDC,
             result.mockWETH,
@@ -132,10 +133,10 @@ contract UnichainDeployment {
             eVaultWETH
         );
         
-        // 6. Add strategy to USDC vault
+        // 7. Add strategy to USDC vault
         Vault(result.usdcVault).addStrategy(result.usdcWethStrategy);
         
-        // 7. Deploy auto-deposit proxies
+        // 8. Deploy auto-deposit proxies
         result.autoDepositProxyUSDC = _deployAutoDepositProxy(
             result.usdcVault,
             result.mockUSDC,
@@ -150,32 +151,19 @@ contract UnichainDeployment {
             0.01 * 10**18 // 0.01 WETH minimum
         );
         
-        // 8. Mint test tokens to deployer
+        // 9. Mint test tokens to deployer
         _mintTestTokens(result.mockUSDC, payable(result.mockWETH), msg.sender);
         
         emit SystemDeployed(
             msg.sender, 
             result.vaultFactory, 
+            result.strategyFactory,
             result.usdcVault, 
             result.wethVault,
             result.usdcWethStrategy
         );
         
         return result;
-    }
-    
-    /// @notice Deploy system with default parameters for testing
-    function deployTestSystem(
-        address eVaultUSDC,
-        address eVaultWETH
-    ) external payable returns (DeploymentResult memory) {
-        return this.deploySystem{value: msg.value}(
-            msg.sender, // treasury
-            msg.sender, // manager
-            msg.sender, // agent
-            eVaultUSDC,
-            eVaultWETH
-        );
     }
     
     // ============ Internal Deployment Functions ============
@@ -203,6 +191,12 @@ contract UnichainDeployment {
             treasury
         );
         emit ContractDeployed("VaultFactorySlim", address(factory));
+        return address(factory);
+    }
+
+    function _deployStrategyFactory() internal returns (address) {
+        StrategyFactory factory = new StrategyFactory();
+        emit ContractDeployed("StrategyFactory", address(factory));
         return address(factory);
     }
     
@@ -239,14 +233,15 @@ contract UnichainDeployment {
     }
     
     function _createEulerSwapStrategy(
-        address factory,
+        address factory, // This is now the strategy factory address
         address vault,
         address usdc,
         address weth,
         address eVaultUSDC,
         address eVaultWETH
     ) internal returns (address strategy, uint256 strategyId) {
-        (strategy, strategyId) = VaultFactorySlim(factory).createEulerSwapStrategy(
+        // Call createEulerSwapStrategy on the StrategyFactory contract
+        (strategy, strategyId) = StrategyFactory(factory).createEulerSwapStrategy(
             vault,
             usdc,
             weth,
@@ -273,68 +268,7 @@ contract UnichainDeployment {
     }
     
     function _mintTestTokens(address usdc, address payable weth, address recipient) internal {
-        // Mint test tokens
         MockUSDC(usdc).mint(recipient, 100_000 * 10**6); // 100k USDC
         MockWETH(weth).mint(recipient, 50 * 10**18); // 50 WETH
-        
-        // Also mint to this contract for distribution
-        MockUSDC(usdc).mint(address(this), 1_000_000 * 10**6); // 1M USDC
-        MockWETH(weth).mint(address(this), 1000 * 10**18); // 1000 WETH
-    }
-    
-    // ============ Utility Functions ============
-    
-    /// @notice Get deployment summary as string
-    function getDeploymentSummary(DeploymentResult memory result) external pure returns (string memory) {
-        return string(abi.encodePacked(
-            "=== UNICHAIN DEPLOYMENT SUMMARY ===\n",
-            "Network: Unichain Mainnet\n",
-            "Vault Factory: ", _addressToString(result.vaultFactory), "\n",
-            "USDC Vault: ", _addressToString(result.usdcVault), "\n",
-            "WETH Vault: ", _addressToString(result.wethVault), "\n",
-            "USDC/WETH Strategy: ", _addressToString(result.usdcWethStrategy), "\n",
-            "Auto Deposit USDC: ", _addressToString(result.autoDepositProxyUSDC), "\n",
-            "Auto Deposit WETH: ", _addressToString(result.autoDepositProxyWETH), "\n",
-            "Mock USDC: ", _addressToString(result.mockUSDC), "\n",
-            "Mock WETH: ", _addressToString(result.mockWETH), "\n",
-            "=== INTEGRATION ADDRESSES ===\n",
-            "EulerSwap Factory: ", _addressToString(EULER_SWAP_FACTORY), "\n",
-            "EVC: ", _addressToString(EVC), "\n",
-            "eVault Factory: ", _addressToString(EVAULT_FACTORY)
-        ));
-    }
-    
-    function _addressToString(address addr) internal pure returns (string memory) {
-        bytes32 value = bytes32(uint256(uint160(addr)));
-        bytes memory alphabet = "0123456789abcdef";
-        
-        bytes memory str = new bytes(42);
-        str[0] = '0';
-        str[1] = 'x';
-        for (uint256 i = 0; i < 20; i++) {
-            str[2+i*2] = alphabet[uint8(value[i + 12] >> 4)];
-            str[3+i*2] = alphabet[uint8(value[i + 12] & 0x0f)];
-        }
-        return string(str);
-    }
-    
-    /// @notice Faucet function for test tokens
-    function faucet(address usdc, address payable weth, address recipient, uint256 usdcAmount, uint256 wethAmount) external {
-        if (usdcAmount > 0) {
-            MockUSDC(usdc).transfer(recipient, usdcAmount);
-        }
-        if (wethAmount > 0) {
-            MockWETH(weth).transfer(recipient, wethAmount);
-        }
-    }
-    
-    /// @notice Get Unichain contract addresses
-    function getUnichainAddresses() external pure returns (
-        address eulerSwapFactory,
-        address evc,
-        address eVaultFactory,
-        address protocolConfig
-    ) {
-        return (EULER_SWAP_FACTORY, EVC, EVAULT_FACTORY, PROTOCOL_CONFIG);
     }
 }

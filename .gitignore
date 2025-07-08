@@ -3,5 +3,7 @@ env
 node_modules
 /node_modules
 
-near-vault-agent/.env
-near-vault-agent/env
+euler-vault-agent/.env
+euler-vault-agent/env
+
+frontend/node_modules

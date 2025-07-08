@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import os
 
-# Minimal working version for Aurora
+# Minimal working version for euler
 def create_mock_features():
     return {
         'avg_value': 0.1,
@@ -31,7 +31,7 @@ def create_mock_features():
     }
 
 def main():
-    print("🔬 Creating Aurora ML Risk Model")
+    print("🔬 Creating euler ML Risk Model")
     
     # Create mock baseline data (5 protocols)
     baseline_data = [create_mock_features() for _ in range(5)]
@@ -57,7 +57,7 @@ def main():
     }
     
     joblib.dump(model_data, 'models/anomaly_risk_model.joblib')
-    print("✅ Aurora ML model created successfully!")
+    print("✅ euler ML model created successfully!")
     
     return baseline_scores
 

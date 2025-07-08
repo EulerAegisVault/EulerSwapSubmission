@@ -1,5 +1,5 @@
 """
-Aurora-specific OpenAI LLM Planner for Aurora (NEAR EVM) vault strategies
+euler-specific OpenAI LLM Planner for euler (NEAR EVM) vault strategies
 """
 
 import json
@@ -11,11 +11,11 @@ from langchain.tools import tool
 
 load_dotenv()
 
-class AuroraOpenAILLMPlanner:
-    """LLM Planner using OpenAI for Aurora-specific strategy generation"""
+class eulerOpenAILLMPlanner:
+    """LLM Planner using OpenAI for euler-specific strategy generation"""
     
     def __init__(self, config: Dict[str, Any]):
-        """Initialize with OpenAI configuration for Aurora"""
+        """Initialize with OpenAI configuration for euler"""
         self.config = config
         self.provider = config.get('provider', 'openai')
         self.model = config.get('model', 'gpt-4o-mini')
@@ -27,72 +27,72 @@ class AuroraOpenAILLMPlanner:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
         
-        print(f"🤖 Aurora LLM Provider: {self.provider}")
+        print(f"🤖 euler LLM Provider: {self.provider}")
         print(f"🧠 Model: {self.model}")
     
-    def generate_aurora_vault_strategy(self, market_data: Dict[str, Any], vault_status: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate Aurora vault management strategy using OpenAI"""
+    def generate_euler_vault_strategy(self, market_data: Dict[str, Any], vault_status: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate euler vault management strategy using OpenAI"""
         
         prompt = f"""
-You are an expert DeFi vault manager for Aurora (NEAR's EVM layer) prize savings protocol.
+You are an expert DeFi vault manager for euler (NEAR's EVM layer) prize savings protocol.
 
-Current Aurora Vault Status:
+Current euler Vault Status:
 - Liquid USDC: {vault_status.get('liquid_usdc', 0)} USDC
 - Prize Pool: {vault_status.get('prize_pool', 0)} USDC  
 - Last Winner: {vault_status.get('last_winner', 'None')}
-- Aurora Network: NEAR EVM Layer (Chain ID: 1313161555)
+- euler Network: NEAR EVM Layer (Chain ID: 1313161555)
 - Situation: {vault_status.get('situation', 'Normal operations')}
 
-Aurora Ecosystem Context:
-- Aurora VRF Available: {market_data.get('aurora_vrf_available', True)}
+euler Ecosystem Context:
+- euler VRF Available: {market_data.get('euler_vrf_available', True)}
 - Ref Finance (DEX): ~15.2% APY, Medium Risk
 - Trisolaris (AMM): ~12.8% APY, Medium Risk  
 - Bastion (Lending): ~9.1% APY, Low Risk
 - Pulsar Finance: Advanced DeFi strategies
 - Beefy Finance: Auto-compounding vaults
-- Gas Conditions: {market_data.get('gas_price', 'Low (Aurora advantage)')}
+- Gas Conditions: {market_data.get('gas_price', 'Low (euler advantage)')}
 
-Aurora Ecosystem Advantages:
+euler Ecosystem Advantages:
 - EVM compatibility with lower gas costs
 - NEAR's fast finality and security
 - Bridge to NEAR ecosystem
 - Growing DeFi ecosystem
 - Ethereum tooling compatibility
 
-TASK: Generate a safe Aurora vault management strategy focusing on:
-1. Prize pool optimization for weekly Aurora VRF lottery
+TASK: Generate a safe euler vault management strategy focusing on:
+1. Prize pool optimization for weekly euler VRF lottery
 2. User fund safety (top priority) 
 3. Risk management and security
-4. Aurora ecosystem yield opportunities
+4. euler ecosystem yield opportunities
 5. Weekly lottery prize generation
 
 Respond with ONLY valid JSON in this exact format:
 {{
-    "strategy_type": "aurora_vault_management",
+    "strategy_type": "euler_vault_management",
     "primary_action": "optimize_prize_pool",
     "risk_level": "low",
-    "aurora_chain_id": 1313161555,
+    "euler_chain_id": 1313161555,
     "actions": [
         {{
-            "action_type": "simulate_aurora_yield_harvest_and_deposit",
+            "action_type": "simulate_euler_yield_harvest_and_deposit",
             "parameters": {{
                 "amount_usdc": 150.0
             }},
             "priority": 1,
-            "reasoning": "Generate weekly Aurora lottery prize pool"
+            "reasoning": "Generate weekly euler lottery prize pool"
         }}
     ],
     "expected_outcome": {{
         "prize_pool_target": 150.0,
         "risk_score": 0.2,
         "estimated_timeline": "immediate",
-        "aurora_advantages": "Lower gas costs, EVM compatibility, NEAR security"
+        "euler_advantages": "Lower gas costs, EVM compatibility, NEAR security"
     }},
     "recommendations": [
-        "Create modest weekly prize pool using Aurora VRF",
-        "Maintain low risk approach on Aurora",
+        "Create modest weekly prize pool using euler VRF",
+        "Maintain low risk approach on euler",
         "Consider Ref Finance for higher yields when appropriate",
-        "Leverage Aurora's EVM compatibility and NEAR ecosystem",
+        "Leverage euler's EVM compatibility and NEAR ecosystem",
         "Monitor Bastion for lending opportunities"
     ]
 }}
@@ -114,7 +114,7 @@ Respond with ONLY valid JSON in this exact format:
                     "messages": [
                         {
                             "role": "system", 
-                            "content": "You are an Aurora DeFi vault manager expert. Respond only with valid JSON strategy objects optimized for Aurora (NEAR EVM). No additional text."
+                            "content": "You are an euler DeFi vault manager expert. Respond only with valid JSON strategy objects optimized for euler (NEAR EVM). No additional text."
                         },
                         {
                             "role": "user", 
@@ -129,20 +129,20 @@ Respond with ONLY valid JSON in this exact format:
             
             if response.status_code != 200:
                 print(f"❌ OpenAI API error: {response.status_code} - {response.text}")
-                return self._fallback_aurora_strategy()
+                return self._fallback_euler_strategy()
             
             result = response.json()
             content = result['choices'][0]['message']['content']
             
-            print(f"🤖 OpenAI Aurora Response: {content[:200]}...")
+            print(f"🤖 OpenAI euler Response: {content[:200]}...")
             
             # Extract JSON from response
             strategy = self._extract_json_from_response(content)
-            return strategy if strategy else self._fallback_aurora_strategy()
+            return strategy if strategy else self._fallback_euler_strategy()
             
         except Exception as e:
-            print(f"⚠️ OpenAI Aurora generation failed: {e}")
-            return self._fallback_aurora_strategy()
+            print(f"⚠️ OpenAI euler generation failed: {e}")
+            return self._fallback_euler_strategy()
     
     def _extract_json_from_response(self, content: str) -> Optional[Dict[str, Any]]:
         """Extract JSON strategy from LLM response"""
@@ -160,32 +160,32 @@ Respond with ONLY valid JSON in this exact format:
                 pass
         return None
     
-    def _fallback_aurora_strategy(self) -> Dict[str, Any]:
-        """Fallback Aurora strategy when LLM fails"""
+    def _fallback_euler_strategy(self) -> Dict[str, Any]:
+        """Fallback euler strategy when LLM fails"""
         return {
-            "strategy_type": "aurora_vault_management",
+            "strategy_type": "euler_vault_management",
             "primary_action": "optimize_prize_pool",
             "risk_level": "low",
-            "aurora_chain_id": 1313161555,
+            "euler_chain_id": 1313161555,
             "actions": [
                 {
-                    "action_type": "simulate_aurora_yield_harvest_and_deposit",
+                    "action_type": "simulate_euler_yield_harvest_and_deposit",
                     "parameters": {"amount_usdc": 150.0},
                     "priority": 1,
-                    "reasoning": "Fallback: Generate modest Aurora prize pool for weekly lottery"
+                    "reasoning": "Fallback: Generate modest euler prize pool for weekly lottery"
                 }
             ],
             "expected_outcome": {
                 "prize_pool_target": 150.0,
                 "risk_score": 0.2,
                 "estimated_timeline": "immediate",
-                "aurora_advantages": "Lower gas costs, EVM compatibility, NEAR security"
+                "euler_advantages": "Lower gas costs, EVM compatibility, NEAR security"
             },
             "recommendations": [
                 "Use fallback strategy due to LLM unavailability",
-                "Generate modest prize pool for weekly Aurora lottery",
-                "Leverage Aurora's unique advantages over Ethereum",
-                "Consider Aurora DeFi ecosystem opportunities (Ref, Trisolaris, Bastion)"
+                "Generate modest prize pool for weekly euler lottery",
+                "Leverage euler's unique advantages over Ethereum",
+                "Consider euler DeFi ecosystem opportunities (Ref, Trisolaris, Bastion)"
             ]
         }
     
@@ -211,18 +211,18 @@ Respond with ONLY valid JSON in this exact format:
             return False
 
 
-# Enhanced agent tool using Aurora-specific OpenAI LLM planner
+# Enhanced agent tool using euler-specific OpenAI LLM planner
 @tool
 def ai_strategy_advisor(current_situation: str = "general_analysis") -> str:
     """
-    Use OpenAI to analyze current Aurora vault situation and recommend strategies.
+    Use OpenAI to analyze current euler vault situation and recommend strategies.
     
     Args:
-        current_situation: Description of the current Aurora situation to analyze
+        current_situation: Description of the current euler situation to analyze
     """
-    print(f"Tool: ai_strategy_advisor - Aurora Situation: {current_situation}")
+    print(f"Tool: ai_strategy_advisor - euler Situation: {current_situation}")
     
-    # Initialize Aurora-specific OpenAI LLM planner
+    # Initialize euler-specific OpenAI LLM planner
     llm_config = {
         'provider': 'openai',
         'model': 'gpt-4o-mini',
@@ -231,34 +231,34 @@ def ai_strategy_advisor(current_situation: str = "general_analysis") -> str:
     }
     
     try:
-        planner = AuroraOpenAILLMPlanner(llm_config)
+        planner = eulerOpenAILLMPlanner(llm_config)
         
         # Check if OpenAI API is available
         if not planner.check_api_available():
             return """
-❌ OpenAI API not available for Aurora strategies. 
+❌ OpenAI API not available for euler strategies. 
 
 Please check:
 1. OPENAI_API_KEY is set in .env file
 2. API key is valid and has credits
 3. Internet connection is working
 
-Using fallback Aurora rule-based strategy instead.
+Using fallback euler rule-based strategy instead.
             """
         
-        # Get current Aurora vault status (dynamic from your actual contracts)
+        # Get current euler vault status (dynamic from your actual contracts)
         vault_status = {
             "liquid_usdc": 290.0,  # From your health check
             "prize_pool": 0.0,
             "last_winner": "0x0000000000000000000000000000000000000000",
-            "strategy_type": "aurora_vrf_lottery",
-            "aurora_chain_id": 1313161555,
+            "strategy_type": "euler_vrf_lottery",
+            "euler_chain_id": 1313161555,
             "situation": current_situation
         }
         
         market_data = {
-            "aurora_vrf_available": True,
-            "gas_price": "low",  # Aurora advantage
+            "euler_vrf_available": True,
+            "gas_price": "low",  # euler advantage
             "risk_model_available": True,
             "situation_description": current_situation,
             "ref_finance_apy": 15.2,
@@ -266,16 +266,16 @@ Using fallback Aurora rule-based strategy instead.
             "bastion_apy": 9.1
         }
         
-        # Generate Aurora strategy using OpenAI
-        strategy = planner.generate_aurora_vault_strategy(market_data, vault_status)
+        # Generate euler strategy using OpenAI
+        strategy = planner.generate_euler_vault_strategy(market_data, vault_status)
         
         return f"""
-🤖 AI Strategy Recommendation (OpenAI for Aurora):
+🤖 AI Strategy Recommendation (OpenAI for euler):
 
 Strategy Type: {strategy['strategy_type']}
 Primary Action: {strategy['primary_action']}
 Risk Level: {strategy['risk_level']}
-Aurora Chain ID: {strategy.get('aurora_chain_id', 1313161555)}
+euler Chain ID: {strategy.get('euler_chain_id', 1313161555)}
 
 Actions to Take:
 {json.dumps(strategy['actions'], indent=2)}
@@ -286,16 +286,16 @@ Expected Outcome:
 AI Recommendations:
 {json.dumps(strategy['recommendations'], indent=2)}
 
-🌐 Aurora Advantages: Lower gas costs, EVM compatibility, NEAR ecosystem access, fast finality
+🌐 euler Advantages: Lower gas costs, EVM compatibility, NEAR ecosystem access, fast finality
         """
         
     except Exception as e:
-        return f"❌ Aurora AI strategy advisor failed: {e}\n\nUsing fallback: Recommend 150 USDC yield harvest for weekly Aurora lottery with low gas costs."
+        return f"❌ euler AI strategy advisor failed: {e}\n\nUsing fallback: Recommend 150 USDC yield harvest for weekly euler lottery with low gas costs."
 
 
 # Test function
-def test_aurora_openai_connection():
-    """Test OpenAI connection for Aurora strategies"""
+def test_euler_openai_connection():
+    """Test OpenAI connection for euler strategies"""
     config = {
         'provider': 'openai',
         'model': 'gpt-4o-mini',
@@ -304,15 +304,15 @@ def test_aurora_openai_connection():
     }
     
     try:
-        planner = AuroraOpenAILLMPlanner(config)
+        planner = eulerOpenAILLMPlanner(config)
         available = planner.check_api_available()
-        print(f"✅ OpenAI API Available for Aurora: {available}")
+        print(f"✅ OpenAI API Available for euler: {available}")
         return available
     except Exception as e:
-        print(f"❌ OpenAI Aurora Test Failed: {e}")
+        print(f"❌ OpenAI euler Test Failed: {e}")
         return False
 
 
 if __name__ == "__main__":
-    print("🧪 Testing Aurora OpenAI LLM Planner...")
-    test_aurora_openai_connection()
+    print("🧪 Testing euler OpenAI LLM Planner...")
+    test_euler_openai_connection()

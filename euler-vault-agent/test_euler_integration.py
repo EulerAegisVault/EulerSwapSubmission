@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for Aurora Multi-Strategy Vault integration
+Test script for euler Multi-Strategy Vault integration
 Run this to verify your deployed system is working correctly
 """
 
@@ -26,7 +26,7 @@ def test_endpoint(endpoint, method="GET", data=None):
 def run_integration_tests():
     """Run comprehensive integration tests."""
     
-    print("🧪 Aurora Multi-Strategy Vault Integration Tests")
+    print("🧪 euler Multi-Strategy Vault Integration Tests")
     print("=" * 60)
     
     # 1. Health Check
@@ -34,7 +34,7 @@ def run_integration_tests():
     health = test_endpoint("/health")
     if health.get("success"):
         print("✅ System healthy")
-        print(f"   Aurora connected: {health['health']['aurora_connected']}")
+        print(f"   euler connected: {health['health']['euler_connected']}")
         print(f"   Agent balance: {health['health']['agent_balance_eth']:.4f} ETH")
         print(f"   Vault balance: {health['health']['vault_balance_usdc']:.2f} USDC")
     else:
@@ -82,20 +82,20 @@ def run_integration_tests():
         print("❌ Deposit test failed:", deposit_result.get("error"))
     
     # 5. Yield Analysis
-    print("\n5️⃣ Aurora Yield Analysis...")
+    print("\n5️⃣ euler Yield Analysis...")
     yields = test_endpoint("/yields")
     if yields.get("success"):
         print("✅ Yield analysis completed")
         analysis = yields["analysis"]
         if "Ref Finance" in analysis and "TriSolaris" in analysis:
-            print("   All Aurora protocols analyzed")
+            print("   All euler protocols analyzed")
     else:
         print("❌ Yield analysis failed:", yields.get("error"))
     
     # 6. AI Strategy Recommendation
     print("\n6️⃣ AI Strategy Recommendation...")
     ai_cmd = {
-        "command": "Analyze current Aurora vault performance and recommend optimal strategy allocation for maximum yield"
+        "command": "Analyze current euler vault performance and recommend optimal strategy allocation for maximum yield"
     }
     ai_result = test_endpoint("/invoke-agent", "POST", ai_cmd)
     if ai_result.get("success"):
@@ -136,7 +136,7 @@ def run_integration_tests():
     print("📊 INTEGRATION TEST SUMMARY")
     print("=" * 60)
     
-    print(f"\n🎯 Your Aurora Multi-Strategy Vault System:")
+    print(f"\n🎯 Your euler Multi-Strategy Vault System:")
     print(f"   ✅ Vault deployed and accessible")
     print(f"   ✅ 3 strategies integrated (Ref Finance, TriSolaris, Bastion)")
     print(f"   ✅ AI optimization system operational")
@@ -158,16 +158,16 @@ def run_integration_tests():
     print(f"   🔄 Bastion: 0xE7d842CAf2f0F3B8BfDE371B06320F8Fd919b4a9")
     
     print(f"\n💡 Next Steps:")
-    print(f"   1. Deploy to Aurora mainnet for production")
+    print(f"   1. Deploy to euler mainnet for production")
     print(f"   2. Add frontend interface for users")
-    print(f"   3. Scale with additional Aurora protocols")
-    print(f"   4. Launch publicly as Aurora's first AI-powered vault")
+    print(f"   3. Scale with additional euler protocols")
+    print(f"   4. Launch publicly as euler's first AI-powered vault")
     
-    print(f"\n🎉 CONGRATULATIONS! You have a production-ready Aurora DeFi system!")
+    print(f"\n🎉 CONGRATULATIONS! You have a production-ready euler DeFi system!")
 
 if __name__ == "__main__":
     print("⏳ Starting integration tests...")
-    print("⚠️  Make sure aurora_multi_vault_agent.py is running on localhost:8000")
+    print("⚠️  Make sure euler_multi_vault_agent.py is running on localhost:8000")
     print()
     
     # Wait a moment for user to confirm

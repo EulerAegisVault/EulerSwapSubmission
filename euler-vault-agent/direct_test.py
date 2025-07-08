@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Direct API test for Aurora vault - bypasses agent issues
+Direct API test for euler vault - bypasses agent issues
 """
 
 import requests
@@ -10,7 +10,7 @@ import time
 BASE_URL = "http://localhost:8000"
 
 def test_direct_apis():
-    print("🧪 Aurora Direct API Test")
+    print("🧪 euler Direct API Test")
     print("=" * 40)
     
     # Test 1: Health Check
@@ -96,7 +96,7 @@ def test_direct_apis():
     print("=" * 40)
     
     print("\n🎯 What Works:")
-    print("   ✅ Aurora agent is running")
+    print("   ✅ euler agent is running")
     print("   ✅ Direct API endpoints functional")
     print("   ✅ Contract interactions working")
     print("   ✅ USDC minting and vault deposits")
@@ -108,7 +108,7 @@ def test_direct_apis():
     print("   • Check status: GET /status")
     print("   • View docs: open http://localhost:8000/docs")
     
-    print("\n🌟 Your Aurora system is working!")
+    print("\n🌟 Your euler system is working!")
     print("   The direct APIs bypass agent issues")
 
 if __name__ == "__main__":

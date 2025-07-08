@@ -55,7 +55,7 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import os
 
-# Minimal working version for Aurora
+# Minimal working version for euler
 def create_mock_features():
     return {{
         'avg_value': 0.1,
@@ -79,7 +79,7 @@ def create_mock_features():
     }}
 
 def main():
-    print("🔬 Creating Aurora ML Risk Model")
+    print("🔬 Creating euler ML Risk Model")
     
     # Create mock baseline data (5 protocols)
     baseline_data = [create_mock_features() for _ in range(5)]
@@ -105,7 +105,7 @@ def main():
     }}
     
     joblib.dump(model_data, 'models/anomaly_risk_model.joblib')
-    print("✅ Aurora ML model created successfully!")
+    print("✅ euler ML model created successfully!")
     
     return baseline_scores
 
@@ -114,12 +114,12 @@ if __name__ == "__main__":
 """
     
     # Write the model script
-    with open(f"{ml_dir}/create_aurora_model.py", "w") as f:
+    with open(f"{ml_dir}/create_euler_model.py", "w") as f:
         f.write(model_script)
     
     # 3. Run the model creation
-    print("\n3️⃣ Creating Aurora ML model...")
-    success = run_command("python create_aurora_model.py", cwd=ml_dir)
+    print("\n3️⃣ Creating euler ML model...")
+    success = run_command("python create_euler_model.py", cwd=ml_dir)
     
     if not success:
         print("❌ Failed to create model")
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     # 4. Create risk API
     print("\n4️⃣ Creating risk API...")
     
-    risk_api_code = '''"""Aurora ML Risk API"""
+    risk_api_code = '''"""euler ML Risk API"""
 import os
 import joblib
 import numpy as np
@@ -211,11 +211,11 @@ if __name__ == "__main__":
         print("\n🎉 ML Risk Assessment Setup Complete!")
         print("✅ Model created and tested successfully")
         print("✅ Risk API working")
-        print("✅ Ready for Aurora integration")
+        print("✅ Ready for euler integration")
         
         print("\n🚀 Next steps:")
-        print("1. Start your Aurora agent:")
-        print("   python aurora_multi_vault_agent_with_ml.py")
+        print("1. Start your euler agent:")
+        print("   python euler_multi_vault_agent_with_ml.py")
         print("2. You should see: 🧠 ML Risk Assessment: LOADED")
         
         return True

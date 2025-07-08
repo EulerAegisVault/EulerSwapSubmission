@@ -1,4 +1,4 @@
-"""Aurora ML Risk API"""
+"""euler ML Risk API"""
 import os
 import joblib
 import numpy as np

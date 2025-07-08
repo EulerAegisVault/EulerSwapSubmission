@@ -35,14 +35,14 @@ except ImportError as e:
     OPENAI_AI_AVAILABLE = False
 
 # ==============================================================================
-# 1. ENHANCED AURORA CONFIGURATION AND SETUP
+# 1. ENHANCED euler CONFIGURATION AND SETUP
 # ==============================================================================
 
 load_dotenv()
 
-# --- Aurora Configuration ---
-RPC_URL = os.getenv("NEAR_TESTNET_RPC_URL")  # Aurora testnet
-CHAIN_ID = int(os.getenv("NEAR_TESTNET_CHAIN_ID"))  # Aurora chain ID
+# --- euler Configuration ---
+RPC_URL = os.getenv("NEAR_TESTNET_RPC_URL")  # euler testnet
+CHAIN_ID = int(os.getenv("NEAR_TESTNET_CHAIN_ID"))  # euler chain ID
 AGENT_PRIVATE_KEY = os.getenv("AGENT_PRIVATE_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -51,14 +51,14 @@ VAULT_ADDRESS = os.getenv("VAULT_ADDRESS")
 VRF_STRATEGY_ADDRESS = os.getenv("VRF_STRATEGY_ADDRESS")
 USDC_TOKEN_ADDRESS = os.getenv("USDC_TOKEN_ADDRESS")
 
-# --- Aurora Strategy Configuration ---
-AURORA_STRATEGIES = {
+# --- euler Strategy Configuration ---
+euler_STRATEGIES = {
     "ref_finance": os.getenv("REF_FINANCE_STRATEGY_ADDRESS", ""),
     "trisolaris": os.getenv("TRISOLARIS_STRATEGY_ADDRESS", ""),
     "bastion": os.getenv("BASTION_STRATEGY_ADDRESS", "")
 }
 
-# --- Web3 Setup for Aurora ---
+# --- Web3 Setup for euler ---
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Fixed middleware injection for Web3.py v6+
 try:
@@ -67,11 +67,11 @@ try:
     print("✅ PoA middleware injected")
 except (ImportError, AttributeError):
     print("⚠️ PoA middleware not available, continuing without it")
-    print("   This is often fine for Aurora testnet")
+    print("   This is often fine for euler testnet")
 
 # --- Agent Account Setup ---
 agent_account = w3.eth.account.from_key(AGENT_PRIVATE_KEY)
-print(f"🤖 Aurora Agent Wallet Address: {agent_account.address}")
+print(f"🤖 euler Agent Wallet Address: {agent_account.address}")
 
 # --- Risk Model Setup ---
 if RISK_MODEL_AVAILABLE:
@@ -125,10 +125,10 @@ vault_contract = w3.eth.contract(address=VAULT_ADDRESS, abi=vault_abi)
 vrf_strategy_contract = w3.eth.contract(address=VRF_STRATEGY_ADDRESS, abi=vrf_strategy_abi)
 usdc_contract = w3.eth.contract(address=USDC_TOKEN_ADDRESS, abi=usdc_abi)
 
-print("✅ Enhanced Aurora configuration loaded with risk management")
+print("✅ Enhanced euler configuration loaded with risk management")
 
 # ==============================================================================
-# 2. ENHANCED AGENT TOOLS WITH AURORA INTEGRATION
+# 2. ENHANCED AGENT TOOLS WITH euler INTEGRATION
 # ==============================================================================
 
 def send_transaction(tx):
@@ -147,27 +147,27 @@ def send_transaction(tx):
             raw_tx = signed_tx
         
         tx_hash = w3.eth.send_raw_transaction(raw_tx)
-        print(f"⏳ Aurora transaction sent: {tx_hash.hex()}. Waiting for confirmation...")
+        print(f"⏳ euler transaction sent: {tx_hash.hex()}. Waiting for confirmation...")
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
-        print(f"✅ Aurora transaction confirmed in block: {receipt.blockNumber}")
+        print(f"✅ euler transaction confirmed in block: {receipt.blockNumber}")
         return {"success": True, "receipt": receipt, "tx_hash": tx_hash.hex()}
         
     except ContractLogicError as e:
-        print(f"❌ Aurora transaction reverted: {e}")
+        print(f"❌ euler transaction reverted: {e}")
         return {"success": False, "error": f"Contract logic error: {e}"}
     except Exception as e:
-        print(f"❌ Aurora transaction error: {e}")
+        print(f"❌ euler transaction error: {e}")
         # More detailed error for debugging
         import traceback
         traceback.print_exc()
         return {"success": False, "error": str(e)}
 
 @tool
-def get_enhanced_aurora_protocol_status() -> str:
+def get_enhanced_euler_protocol_status() -> str:
     """
-    Gets comprehensive Aurora protocol status including risk metrics and yield opportunities.
+    Gets comprehensive euler protocol status including risk metrics and yield opportunities.
     """
-    print("Tool: get_enhanced_aurora_protocol_status")
+    print("Tool: get_enhanced_euler_protocol_status")
     try:
         # Basic protocol status
         liquid_usdc_wei = usdc_contract.functions.balanceOf(VAULT_ADDRESS).call()
@@ -177,7 +177,7 @@ def get_enhanced_aurora_protocol_status() -> str:
         liquid_usdc = liquid_usdc_wei / (10**6)
         prize_pool = prize_pool_wei / (10**6)
         
-        # Risk assessment for Aurora VRF strategy
+        # Risk assessment for euler VRF strategy
         risk_level = "UNKNOWN"
         if risk_api:
             try:
@@ -186,32 +186,32 @@ def get_enhanced_aurora_protocol_status() -> str:
             except Exception as e:
                 risk_level = f"UNAVAILABLE ({str(e)[:50]}...)"
         
-        # Aurora-specific yield opportunity analysis
-        yield_opportunities = analyze_aurora_yield_opportunities()
+        # euler-specific yield opportunity analysis
+        yield_opportunities = analyze_euler_yield_opportunities()
         
         status_report = {
             "vault_liquid_usdc": f"{liquid_usdc:.2f} USDC",
             "current_prize_pool": f"{prize_pool:.2f} USDC", 
             "last_lottery_winner": last_winner,
-            "aurora_vrf_strategy_risk_level": risk_level,
-            "best_yield_opportunity": yield_opportunities.get("best", "Aurora VRF Lottery"),
+            "euler_vrf_strategy_risk_level": risk_level,
+            "best_yield_opportunity": yield_opportunities.get("best", "euler VRF Lottery"),
             "total_deployed": f"{prize_pool:.2f} USDC",
             "agent_address": agent_account.address,
             "vault_address": VAULT_ADDRESS,
-            "aurora_vrf_strategy_address": VRF_STRATEGY_ADDRESS,
-            "aurora_chain_id": CHAIN_ID,
+            "euler_vrf_strategy_address": VRF_STRATEGY_ADDRESS,
+            "euler_chain_id": CHAIN_ID,
             "risk_model_available": RISK_MODEL_AVAILABLE,
             "openai_ai_available": OPENAI_AI_AVAILABLE
         }
         
-        return f"Enhanced Aurora Protocol Status: {json.dumps(status_report, indent=2)}"
+        return f"Enhanced euler Protocol Status: {json.dumps(status_report, indent=2)}"
     except Exception as e:
-        return f"Error getting enhanced Aurora protocol status: {e}"
+        return f"Error getting enhanced euler protocol status: {e}"
 
-def analyze_aurora_yield_opportunities():
-    """Analyze available yield opportunities across Aurora ecosystem."""
+def analyze_euler_yield_opportunities():
+    """Analyze available yield opportunities across euler ecosystem."""
     opportunities = {
-        "aurora_vrf": {"apy": 0.0, "risk": 0.2, "type": "prize"},
+        "euler_vrf": {"apy": 0.0, "risk": 0.2, "type": "prize"},
         "ref_finance": {"apy": 15.2, "risk": 0.4, "type": "dex"},
         "trisolaris": {"apy": 12.8, "risk": 0.45, "type": "dex"},
         "bastion": {"apy": 9.1, "risk": 0.35, "type": "lending"},
@@ -226,11 +226,11 @@ def analyze_aurora_yield_opportunities():
     return {"best": best[0], "opportunities": opportunities}
 
 @tool
-def assess_aurora_strategy_risk(strategy_address: str) -> str:
+def assess_euler_strategy_risk(strategy_address: str) -> str:
     """
-    Assess the risk level of an Aurora DeFi strategy before deployment.
+    Assess the risk level of an euler DeFi strategy before deployment.
     """
-    print(f"Tool: assess_aurora_strategy_risk for {strategy_address}")
+    print(f"Tool: assess_euler_strategy_risk for {strategy_address}")
     
     if not risk_api:
         return "Risk assessment unavailable - model not loaded. Run: cd ml-risk && python anomaly_risk_model.py"
@@ -243,44 +243,44 @@ def assess_aurora_strategy_risk(strategy_address: str) -> str:
         recommendation = "APPROVE" if risk_score < 0.5 else "CAUTION" if risk_score < 0.8 else "REJECT"
         
         return f"""
-Aurora Strategy Risk Assessment for {strategy_address}:
+euler Strategy Risk Assessment for {strategy_address}:
 📊 Risk Score: {risk_score:.3f}
 🎯 Risk Level: {risk_level}
 💡 Recommendation: {recommendation}
 🔍 Details: {detailed_assessment.get('risk_level', 'N/A')}
 📋 Error (if any): {detailed_assessment.get('error', 'None')}
-🌐 Network: Aurora (NEAR EVM)
+🌐 Network: euler (NEAR EVM)
         """
     except Exception as e:
-        return f"Aurora risk assessment failed: {e}"
+        return f"euler risk assessment failed: {e}"
 
 @tool
-def deploy_to_aurora_strategy_with_risk_check(strategy_name: str, amount: float = 0.0) -> str:
+def deploy_to_euler_strategy_with_risk_check(strategy_name: str, amount: float = 0.0) -> str:
     """
-    Deploy funds to an Aurora strategy after comprehensive risk assessment.
+    Deploy funds to an euler strategy after comprehensive risk assessment.
     
     Args:
-        strategy_name: Name of the strategy ("aurora_vrf", "ref_finance", etc.)
+        strategy_name: Name of the strategy ("euler_vrf", "ref_finance", etc.)
         amount: Amount of USDC to deploy (0 = use reasonable default)
     """
-    print(f"Tool: deploy_to_aurora_strategy_with_risk_check - {strategy_name}, {amount} USDC")
+    print(f"Tool: deploy_to_euler_strategy_with_risk_check - {strategy_name}, {amount} USDC")
     
     try:
         # Handle strategy name mapping
         strategy_address = None
-        if strategy_name in AURORA_STRATEGIES and AURORA_STRATEGIES[strategy_name]:
-            strategy_address = AURORA_STRATEGIES[strategy_name]
-        elif strategy_name == "aurora_vrf" or strategy_name == "vrf":
+        if strategy_name in euler_STRATEGIES and euler_STRATEGIES[strategy_name]:
+            strategy_address = euler_STRATEGIES[strategy_name]
+        elif strategy_name == "euler_vrf" or strategy_name == "vrf":
             strategy_address = VRF_STRATEGY_ADDRESS
         elif strategy_name == "ref_finance":
-            strategy_address = AURORA_STRATEGIES.get("ref_finance", VRF_STRATEGY_ADDRESS)
-            if not AURORA_STRATEGIES.get("ref_finance"):
-                strategy_name = "aurora_vrf"
-                print("⚠️ Ref Finance strategy not deployed, redirecting to Aurora VRF lottery")
+            strategy_address = euler_STRATEGIES.get("ref_finance", VRF_STRATEGY_ADDRESS)
+            if not euler_STRATEGIES.get("ref_finance"):
+                strategy_name = "euler_vrf"
+                print("⚠️ Ref Finance strategy not deployed, redirecting to euler VRF lottery")
         
         if not strategy_address:
-            available_strategies = ["aurora_vrf"] + [k for k, v in AURORA_STRATEGIES.items() if v]
-            return f"❌ Unknown Aurora strategy: {strategy_name}. Available: {available_strategies}"
+            available_strategies = ["euler_vrf"] + [k for k, v in euler_STRATEGIES.items() if v]
+            return f"❌ Unknown euler strategy: {strategy_name}. Available: {available_strategies}"
         
         # Risk assessment
         if risk_api and strategy_address != VRF_STRATEGY_ADDRESS:
@@ -299,7 +299,7 @@ def deploy_to_aurora_strategy_with_risk_check(strategy_name: str, amount: float 
         
         # Set reasonable amount if not specified
         if amount == 0:
-            if strategy_name == "aurora_vrf" or strategy_name == "vrf":
+            if strategy_name == "euler_vrf" or strategy_name == "vrf":
                 amount = min(150.0, liquid_usdc * 0.5)
             else:
                 amount = liquid_usdc * 0.8
@@ -310,11 +310,11 @@ def deploy_to_aurora_strategy_with_risk_check(strategy_name: str, amount: float 
         if amount <= 0:
             return "❌ No funds available to deploy"
         
-        # For Aurora VRF strategy, use simulate yield harvest and deposit
-        if strategy_name == "aurora_vrf" or strategy_address == VRF_STRATEGY_ADDRESS:
-            return simulate_aurora_yield_harvest_and_deposit.invoke({"amount_usdc": amount})
+        # For euler VRF strategy, use simulate yield harvest and deposit
+        if strategy_name == "euler_vrf" or strategy_address == VRF_STRATEGY_ADDRESS:
+            return simulate_euler_yield_harvest_and_deposit.invoke({"amount_usdc": amount})
         
-        # Execute deployment for other Aurora strategies
+        # Execute deployment for other euler strategies
         amount_wei = int(amount * (10**6))
         
         tx = vault_contract.functions.depositToStrategy(
@@ -332,17 +332,17 @@ def deploy_to_aurora_strategy_with_risk_check(strategy_name: str, amount: float 
         result = send_transaction(tx)
         
         if result["success"]:
-            return f"✅ Successfully deployed {amount:.2f} USDC to {strategy_name} strategy on Aurora. TX: {result['tx_hash']}"
+            return f"✅ Successfully deployed {amount:.2f} USDC to {strategy_name} strategy on euler. TX: {result['tx_hash']}"
         else:
-            return f"❌ Aurora deployment failed: {result['error']}"
+            return f"❌ euler deployment failed: {result['error']}"
             
     except Exception as e:
-        return f"❌ Error in Aurora risk-checked deployment: {e}"
+        return f"❌ Error in euler risk-checked deployment: {e}"
 
 @tool
-def simulate_aurora_yield_harvest_and_deposit(amount_usdc: float) -> str:
-    """Simulates yield harvest with Aurora-specific enhanced logging and risk awareness."""
-    print(f"Tool: simulate_aurora_yield_harvest_and_deposit (Amount: {amount_usdc})")
+def simulate_euler_yield_harvest_and_deposit(amount_usdc: float) -> str:
+    """Simulates yield harvest with euler-specific enhanced logging and risk awareness."""
+    print(f"Tool: simulate_euler_yield_harvest_and_deposit (Amount: {amount_usdc})")
     
     # Risk check: Don't simulate excessive amounts
     if amount_usdc > 1000:
@@ -355,7 +355,7 @@ def simulate_aurora_yield_harvest_and_deposit(amount_usdc: float) -> str:
         amount_wei = int(amount_usdc * (10**6))
 
         # 1. Mint "yield" to the agent's wallet
-        print(f"Minting {amount_usdc} USDC to Aurora agent...")
+        print(f"Minting {amount_usdc} USDC to euler agent...")
         mint_tx = usdc_contract.functions.mint(
             agent_account.address,
             amount_wei
@@ -368,12 +368,12 @@ def simulate_aurora_yield_harvest_and_deposit(amount_usdc: float) -> str:
         })
         mint_result = send_transaction(mint_tx)
         if not mint_result["success"]:
-            return f"Failed to mint mock yield on Aurora: {mint_result['error']}"
+            return f"Failed to mint mock yield on euler: {mint_result['error']}"
         
         time.sleep(2)
 
-        # 2. Approve the Aurora VRF Strategy
-        print(f"Approving Aurora VRF strategy to spend {amount_usdc} USDC...")
+        # 2. Approve the euler VRF Strategy
+        print(f"Approving euler VRF strategy to spend {amount_usdc} USDC...")
         approve_tx = usdc_contract.functions.approve(
             VRF_STRATEGY_ADDRESS,
             amount_wei
@@ -386,12 +386,12 @@ def simulate_aurora_yield_harvest_and_deposit(amount_usdc: float) -> str:
         })
         approve_result = send_transaction(approve_tx)
         if not approve_result["success"]:
-            return f"Failed to approve yield deposit on Aurora: {approve_result['error']}"
+            return f"Failed to approve yield deposit on euler: {approve_result['error']}"
             
         time.sleep(2)
 
-        # 3. Deposit the "yield" into the Aurora VRF strategy
-        print(f"Depositing {amount_usdc} USDC as Aurora prize pool...")
+        # 3. Deposit the "yield" into the euler VRF strategy
+        print(f"Depositing {amount_usdc} USDC as euler prize pool...")
         deposit_tx = vrf_strategy_contract.functions.depositYield(
             amount_wei
         ).build_transaction({
@@ -404,29 +404,29 @@ def simulate_aurora_yield_harvest_and_deposit(amount_usdc: float) -> str:
         deposit_result = send_transaction(deposit_tx)
         
         if deposit_result["success"]:
-            return f"✅ Successfully simulated and deposited {amount_usdc} USDC as Aurora prize pool. TX: {deposit_result['tx_hash']}"
+            return f"✅ Successfully simulated and deposited {amount_usdc} USDC as euler prize pool. TX: {deposit_result['tx_hash']}"
         else:
-            return f"Failed to deposit yield on Aurora: {deposit_result['error']}"
+            return f"Failed to deposit yield on euler: {deposit_result['error']}"
 
     except Exception as e:
-        return f"Error simulating Aurora yield harvest: {e}"
+        return f"Error simulating euler yield harvest: {e}"
 
 @tool
-def trigger_aurora_lottery_draw() -> str:
-    """Triggers Aurora lottery draw with enhanced winner tracking and risk checks."""
-    print("Tool: trigger_aurora_lottery_draw")
+def trigger_euler_lottery_draw() -> str:
+    """Triggers euler lottery draw with enhanced winner tracking and risk checks."""
+    print("Tool: trigger_euler_lottery_draw")
     try:
         prize_pool_wei = vrf_strategy_contract.functions.getBalance().call()
         if prize_pool_wei == 0:
-            return "Cannot trigger draw: The Aurora prize pool is zero. Use simulate_aurora_yield_harvest_and_deposit() first."
+            return "Cannot trigger draw: The euler prize pool is zero. Use simulate_euler_yield_harvest_and_deposit() first."
 
         prize_amount = prize_pool_wei / 10**6
         
         # Safety check: Don't trigger draws for extremely large amounts without confirmation
         if prize_amount > 10000:
-            return f"⚠️ Safety check: Aurora prize amount is very large ({prize_amount:.2f} USDC). Please confirm this is intended."
+            return f"⚠️ Safety check: euler prize amount is very large ({prize_amount:.2f} USDC). Please confirm this is intended."
         
-        print(f"Triggering Aurora lottery draw for a prize of {prize_amount:.2f} USDC...")
+        print(f"Triggering euler lottery draw for a prize of {prize_amount:.2f} USDC...")
         
         tx = vault_contract.functions.harvestStrategy(
             VRF_STRATEGY_ADDRESS,
@@ -443,19 +443,19 @@ def trigger_aurora_lottery_draw() -> str:
         if result["success"]:
             time.sleep(2)
             new_winner = vrf_strategy_contract.functions.lastWinner().call()
-            return f"🎉 Aurora lottery draw successful! Winner: {new_winner}, Prize: {prize_amount:.2f} USDC, TX: {result['tx_hash']}"
+            return f"🎉 euler lottery draw successful! Winner: {new_winner}, Prize: {prize_amount:.2f} USDC, TX: {result['tx_hash']}"
         else:
-            return f"Failed to trigger Aurora lottery draw: {result['error']}"
+            return f"Failed to trigger euler lottery draw: {result['error']}"
 
     except Exception as e:
-        return f"Error triggering Aurora lottery draw: {e}"
+        return f"Error triggering euler lottery draw: {e}"
 
 @tool
-def emergency_aurora_risk_assessment() -> str:
+def emergency_euler_risk_assessment() -> str:
     """
-    Perform emergency risk assessment of all deployed Aurora funds.
+    Perform emergency risk assessment of all deployed euler funds.
     """
-    print("Tool: emergency_aurora_risk_assessment")
+    print("Tool: emergency_euler_risk_assessment")
     
     try:
         risk_summary = {
@@ -466,22 +466,22 @@ def emergency_aurora_risk_assessment() -> str:
             "recommendations": []
         }
         
-        # Check Aurora VRF strategy
+        # Check euler VRF strategy
         prize_pool_wei = vrf_strategy_contract.functions.getBalance().call()
         prize_pool = prize_pool_wei / (10**6)
         
         if prize_pool > 0:
             risk_summary["low_risk_strategies"].append({
-                "name": "Aurora VRF Lottery",
+                "name": "euler VRF Lottery",
                 "address": VRF_STRATEGY_ADDRESS,
                 "balance": prize_pool,
                 "risk_score": 0.2,  # VRF is considered low risk
-                "notes": "Aurora VRF-based lottery system on NEAR EVM"
+                "notes": "euler VRF-based lottery system on NEAR EVM"
             })
             risk_summary["total_at_risk"] += prize_pool
         
-        # Check other Aurora strategies
-        for strategy_name, address in AURORA_STRATEGIES.items():
+        # Check other euler strategies
+        for strategy_name, address in euler_STRATEGIES.items():
             if address and risk_api:
                 try:
                     risk_score = risk_api.assess_strategy_risk(address)
@@ -492,54 +492,54 @@ def emergency_aurora_risk_assessment() -> str:
                         "address": address,
                         "balance": balance,
                         "risk_score": risk_score,
-                        "network": "Aurora"
+                        "network": "euler"
                     }
                     
                     if risk_score > 0.7:
                         risk_summary["high_risk_strategies"].append(strategy_info)
-                        risk_summary["recommendations"].append(f"URGENT: Exit Aurora {strategy_name}")
+                        risk_summary["recommendations"].append(f"URGENT: Exit euler {strategy_name}")
                     elif risk_score > 0.5:
                         risk_summary["medium_risk_strategies"].append(strategy_info)
-                        risk_summary["recommendations"].append(f"MONITOR: Watch Aurora {strategy_name}")
+                        risk_summary["recommendations"].append(f"MONITOR: Watch euler {strategy_name}")
                     else:
                         risk_summary["low_risk_strategies"].append(strategy_info)
                         
                 except Exception as e:
-                    print(f"Risk check failed for Aurora {strategy_name}: {e}")
+                    print(f"Risk check failed for euler {strategy_name}: {e}")
         
         total_strategies = len(risk_summary["high_risk_strategies"]) + \
                           len(risk_summary["medium_risk_strategies"]) + \
                           len(risk_summary["low_risk_strategies"])
         
         return f"""
-🚨 Emergency Aurora Risk Assessment:
+🚨 Emergency euler Risk Assessment:
 📊 Total Strategies: {total_strategies}
 💰 Total Funds at Risk: {risk_summary["total_at_risk"]:.2f} USDC
 🔴 High Risk Strategies: {len(risk_summary["high_risk_strategies"])}
 🟡 Medium Risk Strategies: {len(risk_summary["medium_risk_strategies"])}
 🟢 Low Risk Strategies: {len(risk_summary["low_risk_strategies"])}
-🌐 Network: Aurora (NEAR EVM)
+🌐 Network: euler (NEAR EVM)
 
 📋 Strategy Details:
 {json.dumps(risk_summary, indent=2)}
 
-💡 Recommendations: {risk_summary["recommendations"] if risk_summary["recommendations"] else ["All Aurora strategies appear safe"]}
+💡 Recommendations: {risk_summary["recommendations"] if risk_summary["recommendations"] else ["All euler strategies appear safe"]}
         """
         
     except Exception as e:
-        return f"Emergency Aurora risk assessment failed: {e}"
+        return f"Emergency euler risk assessment failed: {e}"
 
 
 
 @tool
-def analyze_aurora_ecosystem() -> str:
+def analyze_euler_ecosystem() -> str:
     """
-    Analyze the entire Aurora ecosystem for yield opportunities and risks.
+    Analyze the entire euler ecosystem for yield opportunities and risks.
     """
-    print("Tool: analyze_aurora_ecosystem")
+    print("Tool: analyze_euler_ecosystem")
     
     try:
-        opportunities = analyze_aurora_yield_opportunities()
+        opportunities = analyze_euler_yield_opportunities()
         
         # Group by category
         dex_strategies = {k: v for k, v in opportunities["opportunities"].items() if v["type"] == "dex"}
@@ -552,7 +552,7 @@ def analyze_aurora_ecosystem() -> str:
             "best_strategy_details": opportunities["best_info"],
             "ecosystem_summary": {
                 "total_strategies": len(opportunities["opportunities"]),
-                "aurora_native_strategies": opportunities["aurora_ecosystem_count"],
+                "euler_native_strategies": opportunities["euler_ecosystem_count"],
                 "dex_options": len(dex_strategies),
                 "lending_options": len(lending_strategies),
                 "yield_farming_options": len(yield_strategies),
@@ -563,7 +563,7 @@ def analyze_aurora_ecosystem() -> str:
                 "highest_apy": max(opportunities["opportunities"].items(), key=lambda x: x[1]["apy"]),
                 "best_risk_adjusted": opportunities["best"]
             },
-            "aurora_advantages": [
+            "euler_advantages": [
                 "Lower gas costs than Ethereum",
                 "EVM compatibility with NEAR security",
                 "Fast transaction finality (2-3 seconds)",
@@ -573,7 +573,7 @@ def analyze_aurora_ecosystem() -> str:
         }
         
         return f"""
-🌐 Aurora Ecosystem Analysis:
+🌐 euler Ecosystem Analysis:
 
 Best Overall Strategy: {opportunities["best"]} 
 └─ APY: {opportunities["best_info"]["apy"]}%
@@ -583,7 +583,7 @@ Best Overall Strategy: {opportunities["best"]}
 
 📊 Ecosystem Summary:
 ├─ Total Strategies: {ecosystem_analysis["ecosystem_summary"]["total_strategies"]}
-├─ Aurora Native: {ecosystem_analysis["ecosystem_summary"]["aurora_native_strategies"]}
+├─ euler Native: {ecosystem_analysis["ecosystem_summary"]["euler_native_strategies"]}
 ├─ DEX Options: {ecosystem_analysis["ecosystem_summary"]["dex_options"]} (Ref Finance, Trisolaris)
 ├─ Lending Options: {ecosystem_analysis["ecosystem_summary"]["lending_options"]} (Bastion, Burrow)
 ├─ Yield Farming: {ecosystem_analysis["ecosystem_summary"]["yield_farming_options"]} (Beefy, Pulsar)
@@ -594,46 +594,46 @@ Best Overall Strategy: {opportunities["best"]}
 ├─ Highest APY: {ecosystem_analysis["top_recommendations"]["highest_apy"][0]} ({ecosystem_analysis["top_recommendations"]["highest_apy"][1]["apy"]}% APY)
 └─ Best Risk-Adjusted: {ecosystem_analysis["top_recommendations"]["best_risk_adjusted"][0]}
 
-🌟 Aurora Advantages:
-{chr(10).join([f"├─ {advantage}" for advantage in ecosystem_analysis["aurora_advantages"]])}
+🌟 euler Advantages:
+{chr(10).join([f"├─ {advantage}" for advantage in ecosystem_analysis["euler_advantages"]])}
 
-💡 Strategy Recommendation: Focus on {opportunities["best"]} for optimal risk-adjusted returns while maintaining lottery operations with Aurora VRF.
+💡 Strategy Recommendation: Focus on {opportunities["best"]} for optimal risk-adjusted returns while maintaining lottery operations with euler VRF.
         """
         
     except Exception as e:
-        return f"Error analyzing Aurora ecosystem: {e}"
+        return f"Error analyzing euler ecosystem: {e}"
 
 @tool  
-def deploy_to_aurora_ecosystem_strategy(strategy_name: str, amount: float = 150.0) -> str:
+def deploy_to_euler_ecosystem_strategy(strategy_name: str, amount: float = 150.0) -> str:
     """
-    Deploy to specific Aurora ecosystem strategies with enhanced integration.
+    Deploy to specific euler ecosystem strategies with enhanced integration.
     
     Args:
-        strategy_name: Aurora strategy name (ref_finance, beefy_finance, etc.)
+        strategy_name: euler strategy name (ref_finance, beefy_finance, etc.)
         amount: Amount of USDC to deploy
     """
-    print(f"Tool: deploy_to_aurora_ecosystem_strategy - {strategy_name}, {amount} USDC")
+    print(f"Tool: deploy_to_euler_ecosystem_strategy - {strategy_name}, {amount} USDC")
     
     try:
-        # Enhanced strategy mapping with Aurora ecosystem
+        # Enhanced strategy mapping with euler ecosystem
         strategy_info = {
             # DEX Strategies
             "ref_finance": {
-                "address": AURORA_STRATEGIES.get("ref_finance", ""),
-                "description": "Aurora's leading DEX",
+                "address": euler_STRATEGIES.get("ref_finance", ""),
+                "description": "euler's leading DEX",
                 "risk_score": 0.4,
                 "expected_apy": 15.2
             },
             "trisolaris": {
-                "address": AURORA_STRATEGIES.get("trisolaris", ""),
-                "description": "Popular Aurora AMM",
+                "address": euler_STRATEGIES.get("trisolaris", ""),
+                "description": "Popular euler AMM",
                 "risk_score": 0.45,
                 "expected_apy": 12.8
             },
             
             # Yield Farming
             "beefy_finance": {
-                "address": AURORA_STRATEGIES.get("beefy_finance", ""),
+                "address": euler_STRATEGIES.get("beefy_finance", ""),
                 "description": "Auto-compounding vaults",
                 "risk_score": 0.5,
                 "expected_apy": 18.5
@@ -641,16 +641,16 @@ def deploy_to_aurora_ecosystem_strategy(strategy_name: str, amount: float = 150.
             
             # Lending
             "bastion": {
-                "address": AURORA_STRATEGIES.get("bastion", ""),
-                "description": "Aurora native lending",
+                "address": euler_STRATEGIES.get("bastion", ""),
+                "description": "euler native lending",
                 "risk_score": 0.35,
                 "expected_apy": 9.1
             },
             
             # Default to VRF if unknown
-            "aurora_vrf": {
+            "euler_vrf": {
                 "address": VRF_STRATEGY_ADDRESS,
-                "description": "Aurora VRF lottery system",
+                "description": "euler VRF lottery system",
                 "risk_score": 0.2,
                 "expected_apy": 0.0
             }
@@ -660,17 +660,17 @@ def deploy_to_aurora_ecosystem_strategy(strategy_name: str, amount: float = 150.
         strategy = strategy_info.get(strategy_name)
         if not strategy:
             available_strategies = list(strategy_info.keys())
-            return f"❌ Unknown Aurora strategy: {strategy_name}. Available: {available_strategies}"
+            return f"❌ Unknown euler strategy: {strategy_name}. Available: {available_strategies}"
         
         # Check if strategy is deployed
         if not strategy["address"]:
             return f"""
-⚠️ {strategy_name} strategy not yet deployed to Aurora.
+⚠️ {strategy_name} strategy not yet deployed to euler.
 📝 Description: {strategy["description"]}
 📊 Expected APY: {strategy["expected_apy"]}%
 🎯 Risk Score: {strategy["risk_score"]}
 
-Redirecting to Aurora VRF lottery system for now.
+Redirecting to euler VRF lottery system for now.
 💡 To deploy {strategy_name}: Set {strategy_name.upper()}_STRATEGY_ADDRESS in .env
             """
         
@@ -686,13 +686,13 @@ Redirecting to Aurora VRF lottery system for now.
                 print(f"⚠️ Risk assessment failed for {strategy_name}: {e}")
         
         # For VRF, use yield simulation
-        if strategy_name == "aurora_vrf" or strategy["address"] == VRF_STRATEGY_ADDRESS:
-            return simulate_aurora_yield_harvest_and_deposit.invoke({"amount_usdc": amount})
+        if strategy_name == "euler_vrf" or strategy["address"] == VRF_STRATEGY_ADDRESS:
+            return simulate_euler_yield_harvest_and_deposit.invoke({"amount_usdc": amount})
         
         # For other strategies, would need actual deployment logic
         # For now, simulate the deployment
         return f"""
-✅ Aurora Ecosystem Deployment Simulated:
+✅ euler Ecosystem Deployment Simulated:
 ├─ Strategy: {strategy_name}
 ├─ Description: {strategy["description"]}  
 ├─ Amount: {amount:.2f} USDC
@@ -700,29 +700,29 @@ Redirecting to Aurora VRF lottery system for now.
 ├─ Risk Score: {strategy["risk_score"]}
 └─ Address: {strategy["address"]}
 
-🌐 Aurora Benefits: Lower gas costs, EVM compatibility, NEAR ecosystem access
+🌐 euler Benefits: Lower gas costs, EVM compatibility, NEAR ecosystem access
 💡 Note: Actual deployment requires strategy contract integration
         """
         
     except Exception as e:
-        return f"Error deploying to Aurora ecosystem strategy: {e}"
+        return f"Error deploying to euler ecosystem strategy: {e}"
 
 
 # ==============================================================================
-# 3. ENHANCED LANGCHAIN AGENT FOR AURORA
+# 3. ENHANCED LANGCHAIN AGENT FOR euler
 # ==============================================================================
 
 # Build tools list dynamically based on availability
 tools = [
-    get_enhanced_aurora_protocol_status,
-    assess_aurora_strategy_risk,
-    deploy_to_aurora_strategy_with_risk_check,
-    emergency_aurora_risk_assessment,
-    simulate_aurora_yield_harvest_and_deposit,
-    trigger_aurora_lottery_draw,
-    # New Aurora ecosystem tools
-    analyze_aurora_ecosystem,
-    deploy_to_aurora_ecosystem_strategy
+    get_enhanced_euler_protocol_status,
+    assess_euler_strategy_risk,
+    deploy_to_euler_strategy_with_risk_check,
+    emergency_euler_risk_assessment,
+    simulate_euler_yield_harvest_and_deposit,
+    trigger_euler_lottery_draw,
+    # New euler ecosystem tools
+    analyze_euler_ecosystem,
+    deploy_to_euler_ecosystem_strategy
 ]
 
 # Add OpenAI AI tool if available
@@ -732,62 +732,62 @@ if OPENAI_AI_AVAILABLE:
 
 tool_names = [t.name for t in tools]
 
-enhanced_aurora_prompt_template = """
-You are the "Enhanced Aurora Vault Manager," an AI agent with advanced risk management capabilities for operating a no-loss prize savings game on Aurora (NEAR's EVM layer).
+enhanced_euler_prompt_template = """
+You are the "Enhanced euler Vault Manager," an AI agent with advanced risk management capabilities for operating a no-loss prize savings game on euler (NEAR's EVM layer).
 
 Your address: {agent_address}
 Your vault: {vault_address}
-Your Aurora VRF strategy: {aurora_vrf_strategy_address}
-Aurora Network: NEAR EVM Layer (Chain ID: {aurora_chain_id})
+Your euler VRF strategy: {euler_vrf_strategy_address}
+euler Network: NEAR EVM Layer (Chain ID: {euler_chain_id})
 
-ENHANCED AURORA CAPABILITIES:
-🎯 Risk Assessment: Evaluate Aurora strategies before deployment
-🔍 Multi-Strategy Analysis: Compare yield opportunities across Aurora protocols
+ENHANCED euler CAPABILITIES:
+🎯 Risk Assessment: Evaluate euler strategies before deployment
+🔍 Multi-Strategy Analysis: Compare yield opportunities across euler protocols
 🚨 Emergency Monitoring: Detect and respond to risk events
-📊 Comprehensive Reporting: Detailed status and metrics for Aurora
+📊 Comprehensive Reporting: Detailed status and metrics for euler
 🤖 AI Strategy Advisor: OpenAI for intelligent recommendations (if available)
-🌐 Aurora Integration: Web3 support for NEAR's EVM layer
+🌐 euler Integration: Web3 support for NEAR's EVM layer
 
-You have access to these enhanced Aurora tools:
+You have access to these enhanced euler tools:
 {tools}
 
-OPERATIONAL PROCEDURE (Enhanced for Aurora):
-1. **Enhanced Assessment**: Use get_enhanced_aurora_protocol_status() for comprehensive overview
-2. **Risk Evaluation**: Use assess_aurora_strategy_risk() for strategy safety analysis
+OPERATIONAL PROCEDURE (Enhanced for euler):
+1. **Enhanced Assessment**: Use get_enhanced_euler_protocol_status() for comprehensive overview
+2. **Risk Evaluation**: Use assess_euler_strategy_risk() for strategy safety analysis
 3. **AI Strategy Planning**: Use ai_strategy_advisor() for intelligent recommendations (if available)
-4. **Strategic Deployment**: Use deploy_to_aurora_strategy_with_risk_check() for safe fund allocation
-5. **Emergency Protocols**: Run emergency_aurora_risk_assessment() if you detect anomalies
-6. **Yield Optimization**: Balance prize rewards with Aurora ecosystem opportunities
+4. **Strategic Deployment**: Use deploy_to_euler_strategy_with_risk_check() for safe fund allocation
+5. **Emergency Protocols**: Run emergency_euler_risk_assessment() if you detect anomalies
+6. **Yield Optimization**: Balance prize rewards with euler ecosystem opportunities
 7. **Lottery Execution**: Only trigger draws after confirming adequate prize pools and safety
 
 Use the following format:
 Question: the user's request or task
-Thought: Consider current Aurora state, risk factors, and optimal strategy
+Thought: Consider current euler state, risk factors, and optimal strategy
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: the result of the action
 ... (repeat as needed)
 Thought: I now have enough information to provide the final answer.
-Final Answer: comprehensive response with Aurora risk assessment and recommendations
+Final Answer: comprehensive response with euler risk assessment and recommendations
 
-AURORA-SPECIFIC RISK MANAGEMENT RULES:
+euler-SPECIFIC RISK MANAGEMENT RULES:
 - Never deploy to strategies with risk score > 0.7
-- Always assess risk before new Aurora deployments
-- Aurora VRF strategy is considered LOW RISK (NEAR EVM-based lottery system)
-- Monitor for unusual patterns or high-risk activities in Aurora ecosystem
+- Always assess risk before new euler deployments
+- euler VRF strategy is considered LOW RISK (NEAR EVM-based lottery system)
+- Monitor for unusual patterns or high-risk activities in euler ecosystem
 - Prioritize user fund safety over yield maximization
 - Run emergency assessment if risk indicators spike
 - Use AI advisor for complex strategic decisions when available
-- Consider Aurora gas costs and transaction fees (ETH-style)
-- Leverage Aurora's unique DeFi ecosystem (Ref Finance, Trisolaris, Bastion)
+- Consider euler gas costs and transaction fees (ETH-style)
+- Leverage euler's unique DeFi ecosystem (Ref Finance, Trisolaris, Bastion)
 
-AURORA ECOSYSTEM NOTES:
-- You operate on Aurora testnet (NEAR's EVM layer)
-- Aurora uses Ethereum-style transactions and gas fees
-- Risk model should work well since Aurora = EVM
-- Aurora VRF strategy leverages NEAR's native randomness
-- Focus on lottery operations while monitoring Aurora yield opportunities
-- Aurora transactions use ETH for gas, not NEAR tokens
+euler ECOSYSTEM NOTES:
+- You operate on euler testnet (NEAR's EVM layer)
+- euler uses Ethereum-style transactions and gas fees
+- Risk model should work well since euler = EVM
+- euler VRF strategy leverages NEAR's native randomness
+- Focus on lottery operations while monitoring euler yield opportunities
+- euler transactions use ETH for gas, not NEAR tokens
 - Account model uses Ethereum addresses (0x...)
 
 Begin!
@@ -796,7 +796,7 @@ Question: {input}
 Thought: {agent_scratchpad}
 """
 
-prompt = PromptTemplate.from_template(enhanced_aurora_prompt_template)
+prompt = PromptTemplate.from_template(enhanced_euler_prompt_template)
 
 # Initialize enhanced LLM and Agent
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=OPENAI_API_KEY)
@@ -811,12 +811,12 @@ agent_executor = AgentExecutor(
 )
 
 # ==============================================================================
-# 4. ENHANCED FASTAPI SERVER FOR AURORA
+# 4. ENHANCED FASTAPI SERVER FOR euler
 # ==============================================================================
 
 app = FastAPI(
-    title="Enhanced Aurora Vault Manager Agent",
-    description="AI agent with risk management for Aurora (NEAR EVM) prize savings protocol",
+    title="Enhanced euler Vault Manager Agent",
+    description="AI agent with risk management for euler (NEAR EVM) prize savings protocol",
     version="3.0.0"
 )
 
@@ -831,7 +831,7 @@ class YieldRequest(BaseModel):
 
 @app.post("/invoke-agent")
 async def invoke_agent(request: AgentRequest):
-    """Enhanced Aurora agent endpoint with risk management and AI strategy advisor."""
+    """Enhanced euler agent endpoint with risk management and AI strategy advisor."""
     try:
         tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
         
@@ -839,8 +839,8 @@ async def invoke_agent(request: AgentRequest):
             "input": request.command,
             "agent_address": agent_account.address,
             "vault_address": VAULT_ADDRESS,
-            "aurora_vrf_strategy_address": VRF_STRATEGY_ADDRESS,
-            "aurora_chain_id": CHAIN_ID,
+            "euler_vrf_strategy_address": VRF_STRATEGY_ADDRESS,
+            "euler_chain_id": CHAIN_ID,
             "tools": tool_descriptions,
             "tool_names": ", ".join(tool_names)
         })
@@ -850,34 +850,34 @@ async def invoke_agent(request: AgentRequest):
 
 @app.post("/assess-risk")
 async def assess_risk(request: RiskAssessmentRequest):
-    """Dedicated Aurora risk assessment endpoint."""
+    """Dedicated euler risk assessment endpoint."""
     try:
-        result = assess_aurora_strategy_risk.invoke({"strategy_address": request.strategy_address})
+        result = assess_euler_strategy_risk.invoke({"strategy_address": request.strategy_address})
         return {"success": True, "assessment": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
 @app.get("/emergency-status")
 async def emergency_status():
-    """Emergency Aurora risk monitoring endpoint."""
+    """Emergency euler risk monitoring endpoint."""
     try:
-        result = emergency_aurora_risk_assessment.invoke({})
+        result = emergency_euler_risk_assessment.invoke({})
         return {"success": True, "emergency_assessment": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
 @app.get("/enhanced-status")
 async def enhanced_status():
-    """Enhanced Aurora protocol status endpoint."""
+    """Enhanced euler protocol status endpoint."""
     try:
-        result = get_enhanced_aurora_protocol_status.invoke({})
+        result = get_enhanced_euler_protocol_status.invoke({})
         return {"success": True, "status": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
 @app.post("/ai-strategy")
 async def ai_strategy_endpoint(request: AgentRequest):
-    """AI strategy advisor endpoint for Aurora (if OpenAI is available)."""
+    """AI strategy advisor endpoint for euler (if OpenAI is available)."""
     try:
         if not OPENAI_AI_AVAILABLE:
             return {
@@ -892,18 +892,18 @@ async def ai_strategy_endpoint(request: AgentRequest):
 
 @app.post("/generate-yield")
 async def generate_yield_direct(request: YieldRequest):
-    """Direct Aurora yield generation endpoint bypassing agent parameter parsing."""
+    """Direct euler yield generation endpoint bypassing agent parameter parsing."""
     try:
-        result = simulate_aurora_yield_harvest_and_deposit.invoke({"amount_usdc": request.amount_usdc})
+        result = simulate_euler_yield_harvest_and_deposit.invoke({"amount_usdc": request.amount_usdc})
         return {"success": True, "yield_result": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
 @app.post("/trigger-lottery")
 async def trigger_lottery_direct():
-    """Direct Aurora lottery trigger endpoint."""
+    """Direct euler lottery trigger endpoint."""
     try:
-        result = trigger_aurora_lottery_draw.invoke({})
+        result = trigger_euler_lottery_draw.invoke({})
         return {"success": True, "lottery_result": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -911,24 +911,24 @@ async def trigger_lottery_direct():
 @app.get("/")
 def read_root():
     return {
-        "message": "Enhanced Aurora Vault Manager Agent is running",
+        "message": "Enhanced euler Vault Manager Agent is running",
         "version": "3.0.0",
         "vault_address": VAULT_ADDRESS,
-        "aurora_vrf_strategy_address": VRF_STRATEGY_ADDRESS,
+        "euler_vrf_strategy_address": VRF_STRATEGY_ADDRESS,
         "usdc_token_address": USDC_TOKEN_ADDRESS,
         "agent_address": agent_account.address,
-        "aurora_chain_id": CHAIN_ID,
-        "aurora_rpc": RPC_URL,
+        "euler_chain_id": CHAIN_ID,
+        "euler_rpc": RPC_URL,
         "risk_model_available": RISK_MODEL_AVAILABLE,
         "openai_ai_available": OPENAI_AI_AVAILABLE,
         "features": [
-            "Aurora Risk Assessment",
-            "Aurora VRF Lottery Management", 
+            "euler Risk Assessment",
+            "euler VRF Lottery Management", 
             "Emergency Monitoring",
             "Enhanced Status Reporting",
             "AI Strategy Advisor (OpenAI)" if OPENAI_AI_AVAILABLE else "AI Strategy Advisor (Not Available)",
-            "Aurora EVM Integration",
-            "Aurora Ecosystem Support (Ref Finance, Trisolaris, Bastion)"
+            "euler EVM Integration",
+            "euler Ecosystem Support (Ref Finance, Trisolaris, Bastion)"
         ],
         "endpoints": [
             "/invoke-agent",
@@ -943,24 +943,24 @@ def read_root():
 
 @app.get("/health")
 async def health_check():
-    """Comprehensive Aurora health check endpoint."""
+    """Comprehensive euler health check endpoint."""
     try:
-        # Test Aurora connection
+        # Test euler connection
         latest_block = w3.eth.block_number
         
         # Test contract connectivity
         vault_balance = usdc_contract.functions.balanceOf(VAULT_ADDRESS).call()
         prize_pool = vrf_strategy_contract.functions.getBalance().call()
         
-        # Test agent wallet balance (ETH for gas on Aurora)
+        # Test agent wallet balance (ETH for gas on euler)
         agent_balance = w3.eth.get_balance(agent_account.address)
         
         health_status = {
             "status": "healthy",
             "timestamp": int(time.time()),
-            "aurora_connected": True,
-            "aurora_chain_id": CHAIN_ID,
-            "aurora_rpc": RPC_URL,
+            "euler_connected": True,
+            "euler_chain_id": CHAIN_ID,
+            "euler_rpc": RPC_URL,
             "latest_block": latest_block,
             "agent_address": agent_account.address,
             "agent_balance_eth": w3.from_wei(agent_balance, 'ether'),
@@ -980,20 +980,20 @@ async def health_check():
                 "status": "unhealthy",
                 "error": str(e),
                 "timestamp": int(time.time()),
-                "aurora_chain_id": CHAIN_ID
+                "euler_chain_id": CHAIN_ID
             }
         }
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Starting Enhanced Aurora Vault Manager Agent...")
+    print("🚀 Starting Enhanced euler Vault Manager Agent...")
     print(f"🔧 Risk Model Available: {RISK_MODEL_AVAILABLE}")
     print(f"🤖 OpenAI AI Available: {OPENAI_AI_AVAILABLE}")
-    print(f"🌐 Aurora Network: NEAR EVM Layer")
-    print(f"🆔 Aurora Chain ID: {CHAIN_ID}")
+    print(f"🌐 euler Network: NEAR EVM Layer")
+    print(f"🆔 euler Chain ID: {CHAIN_ID}")
     print(f"💰 Agent Address: {agent_account.address}")
     print(f"🏦 Vault Address: {VAULT_ADDRESS}")
-    print(f"🎲 Aurora VRF Strategy: {VRF_STRATEGY_ADDRESS}")
+    print(f"🎲 euler VRF Strategy: {VRF_STRATEGY_ADDRESS}")
     print(f"💵 USDC Token: {USDC_TOKEN_ADDRESS}")
     
     # Feature summary
@@ -1008,11 +1008,11 @@ if __name__ == "__main__":
     else:
         features.append("❌ OpenAI Strategy Advisor (setup API key)")
     
-    features.append("✅ Aurora VRF Lottery Management")
+    features.append("✅ euler VRF Lottery Management")
     features.append("✅ Emergency Monitoring")
     features.append("✅ Enhanced Status Reporting")
-    features.append("✅ Aurora EVM Integration")
-    features.append("✅ Aurora Ecosystem Support")
+    features.append("✅ euler EVM Integration")
+    features.append("✅ euler Ecosystem Support")
     
     print("\n📋 Available Features:")
     for feature in features:
@@ -1021,6 +1021,6 @@ if __name__ == "__main__":
     print(f"\n🌐 Starting server on http://localhost:8000")
     print(f"📚 API docs: http://localhost:8000/docs")
     print(f"🔍 Health check: http://localhost:8000/health")
-    print(f"\n🎯 Ready for Aurora DeFi vault management!")
+    print(f"\n🎯 Ready for euler DeFi vault management!")
     
     uvicorn.run(app, host="0.0.0.0", port=8000)

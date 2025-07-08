@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick test and setup script for Aurora Multi-Strategy Vault
+Quick test and setup script for euler Multi-Strategy Vault
 Run this to mint USDC and test your system
 """
 
@@ -28,7 +28,7 @@ def call_agent(command):
         return f"❌ Connection error: {e}"
 
 def main():
-    print("🚀 Aurora Multi-Strategy Vault Quick Test")
+    print("🚀 euler Multi-Strategy Vault Quick Test")
     print("=" * 50)
     
     # Step 1: Check if agent is running
@@ -45,7 +45,7 @@ def main():
             return
     except Exception as e:
         print("❌ Agent not running! Start it with:")
-        print("   python aurora_multi_vault_agent.py")
+        print("   python euler_multi_vault_agent.py")
         return
     
     # Step 2: Mint test USDC
@@ -69,7 +69,7 @@ def main():
     
     # Step 4: Test deposit
     print("\n4️⃣ Testing vault deposit...")
-    deposit_result = call_agent("Test a 100 USDC deposit into the Aurora vault to verify functionality")
+    deposit_result = call_agent("Test a 100 USDC deposit into the euler vault to verify functionality")
     print(deposit_result)
     
     if "Deposit Test Successful" in deposit_result or "successful" in deposit_result.lower():
@@ -80,8 +80,8 @@ def main():
     time.sleep(2)
     
     # Step 5: Analyze yields
-    print("\n5️⃣ Analyzing Aurora yields...")
-    yield_result = call_agent("Analyze current Aurora DeFi yields and recommend optimal allocation")
+    print("\n5️⃣ Analyzing euler yields...")
+    yield_result = call_agent("Analyze current euler DeFi yields and recommend optimal allocation")
     print(yield_result)
     
     time.sleep(2)
@@ -96,7 +96,7 @@ def main():
     print("📊 QUICK TEST SUMMARY")
     print("=" * 50)
     
-    print("\n🎯 Your Aurora System Status:")
+    print("\n🎯 Your euler System Status:")
     print("   ✅ Agent running and responsive")
     print("   ✅ MockUSDC contract accessible")
     print("   ✅ Vault contract deployed and functional")
@@ -115,10 +115,10 @@ def main():
     print("   • Check yields: curl http://localhost:8000/yields")
     print("   • View dashboard: open http://localhost:8000/docs")
     
-    print("\n🎉 Your Aurora Multi-Strategy Vault is ready!")
+    print("\n🎉 Your euler Multi-Strategy Vault is ready!")
     print("   You now have a working AI-powered DeFi system!")
 
 if __name__ == "__main__":
-    print("⚠️  Make sure aurora_multi_vault_agent.py is running first!")
+    print("⚠️  Make sure euler_multi_vault_agent.py is running first!")
     input("Press Enter to start quick test...")
     main()

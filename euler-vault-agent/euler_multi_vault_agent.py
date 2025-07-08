@@ -17,11 +17,11 @@ from langchain.tools import tool
 load_dotenv()
 
 # ==============================================================================
-# AURORA MULTI-STRATEGY CONFIGURATION
+# euler MULTI-STRATEGY CONFIGURATION
 # ==============================================================================
 
-# Aurora Configuration
-RPC_URL = os.getenv("NEAR_TESTNET_RPC_URL", "https://testnet.aurora.dev")
+# euler Configuration
+RPC_URL = os.getenv("NEAR_TESTNET_RPC_URL", "https://testnet.euler.dev")
 CHAIN_ID = int(os.getenv("NEAR_TESTNET_CHAIN_ID", 1313161555))
 AGENT_PRIVATE_KEY = os.getenv("AGENT_PRIVATE_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -30,15 +30,15 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MULTI_VAULT_ADDRESS = "0x4716Be3fdea290c69D7dE19DE9059C7AEA7d64EB"
 USDC_TOKEN_ADDRESS = "0xC0933C5440c656464D1Eb1F886422bE3466B1459"
 
-# Aurora Strategy Addresses (Your Deployed Strategies!)
-AURORA_STRATEGY_ADDRESSES = {
+# euler Strategy Addresses (Your Deployed Strategies!)
+euler_STRATEGY_ADDRESSES = {
     "ref_finance": "0x28F6D4Fe5648BbF2506E56a5b7f9D5522C3999f1",
     "trisolaris": "0xAF2A0D1CDAe0bae796083e772aF2a1736027BC30", 
     "bastion": "0xE7d842CAf2f0F3B8BfDE371B06320F8Fd919b4a9"
 }
 
-# Aurora Protocol Addresses (Real ones)
-AURORA_PROTOCOLS = {
+# euler Protocol Addresses (Real ones)
+euler_PROTOCOLS = {
     "ref_finance": {
         "router": "0x2d3162c6c6495E5C2D62BB38aFdF44a8b0Ed6c57",
         "factory": "0x1a3D6C0F61f59CBfe9f17e6E06aa8B4df20e14BC",
@@ -57,7 +57,7 @@ AURORA_PROTOCOLS = {
         "comptroller": "0x6edd3b3ac5B700EfD0adBE7FdE4E45a1B4C5B1b4",
         "expected_apy": 9.1
     },
-    "aurora_bridge": {
+    "euler_bridge": {
         "bridge": "0x51b5cc6d70746d8275636493e4f5708a4AEB13a0",
         "expected_apy": 0.0
     }
@@ -82,7 +82,7 @@ RISK_THRESHOLDS = {
 # Web3 Setup
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 agent_account = w3.eth.account.from_key(AGENT_PRIVATE_KEY)
-print(f"🚀 Aurora Multi-Strategy Agent: {agent_account.address}")
+print(f"🚀 euler Multi-Strategy Agent: {agent_account.address}")
 
 # Load ABIs for deployed contracts
 vault_abi = [
@@ -127,12 +127,12 @@ vault_contract = w3.eth.contract(address=MULTI_VAULT_ADDRESS, abi=vault_abi)
 usdc_contract = w3.eth.contract(address=USDC_TOKEN_ADDRESS, abi=usdc_abi)
 
 # Strategy contract instances
-ref_strategy_contract = w3.eth.contract(address=AURORA_STRATEGY_ADDRESSES["ref_finance"], abi=strategy_abi)
-tri_strategy_contract = w3.eth.contract(address=AURORA_STRATEGY_ADDRESSES["trisolaris"], abi=strategy_abi)
-bastion_strategy_contract = w3.eth.contract(address=AURORA_STRATEGY_ADDRESSES["bastion"], abi=strategy_abi)
+ref_strategy_contract = w3.eth.contract(address=euler_STRATEGY_ADDRESSES["ref_finance"], abi=strategy_abi)
+tri_strategy_contract = w3.eth.contract(address=euler_STRATEGY_ADDRESSES["trisolaris"], abi=strategy_abi)
+bastion_strategy_contract = w3.eth.contract(address=euler_STRATEGY_ADDRESSES["bastion"], abi=strategy_abi)
 
 # ==============================================================================
-# AURORA PROTOCOL DATA PROVIDERS
+# euler PROTOCOL DATA PROVIDERS
 # ==============================================================================
 
 class RefFinanceProvider:
@@ -156,7 +156,7 @@ class RefFinanceProvider:
             # Use ML risk assessment if available
             if risk_api:
                 try:
-                    ml_risk_score = risk_api.assess_strategy_risk(AURORA_STRATEGY_ADDRESSES["ref_finance"])
+                    ml_risk_score = risk_api.assess_strategy_risk(euler_STRATEGY_ADDRESSES["ref_finance"])
                     risk_score = ml_risk_score
                     print(f"🧠 ML Risk Score for Ref Finance: {ml_risk_score:.3f}")
                 except Exception as e:
@@ -180,7 +180,7 @@ class RefFinanceProvider:
             # Use ML risk even with fallback data
             if risk_api:
                 try:
-                    ml_risk_score = risk_api.assess_strategy_risk(AURORA_STRATEGY_ADDRESSES["ref_finance"])
+                    ml_risk_score = risk_api.assess_strategy_risk(euler_STRATEGY_ADDRESSES["ref_finance"])
                     risk_score = ml_risk_score
                     print(f"🧠 ML Risk Score for Ref Finance: {ml_risk_score:.3f}")
                 except Exception as e:
@@ -213,7 +213,7 @@ class TriSolarisProvider:
             # Use ML risk assessment
             if risk_api:
                 try:
-                    ml_risk_score = risk_api.assess_strategy_risk(AURORA_STRATEGY_ADDRESSES["trisolaris"])
+                    ml_risk_score = risk_api.assess_strategy_risk(euler_STRATEGY_ADDRESSES["trisolaris"])
                     risk_score = ml_risk_score
                     print(f"🧠 ML Risk Score for TriSolaris: {ml_risk_score:.3f}")
                 except Exception as e:
@@ -236,7 +236,7 @@ class TriSolarisProvider:
             # Use ML risk even with fallback data
             if risk_api:
                 try:
-                    ml_risk_score = risk_api.assess_strategy_risk(AURORA_STRATEGY_ADDRESSES["trisolaris"])
+                    ml_risk_score = risk_api.assess_strategy_risk(euler_STRATEGY_ADDRESSES["trisolaris"])
                     risk_score = ml_risk_score
                     print(f"🧠 ML Risk Score for TriSolaris: {ml_risk_score:.3f}")
                 except Exception as e:
@@ -268,7 +268,7 @@ class BastionProvider:
             # Use ML risk assessment
             if risk_api:
                 try:
-                    ml_risk_score = risk_api.assess_strategy_risk(AURORA_STRATEGY_ADDRESSES["bastion"])
+                    ml_risk_score = risk_api.assess_strategy_risk(euler_STRATEGY_ADDRESSES["bastion"])
                     risk_score = ml_risk_score
                     print(f"🧠 ML Risk Score for Bastion: {ml_risk_score:.3f}")
                 except Exception as e:
@@ -295,7 +295,7 @@ class BastionProvider:
             # Use ML risk even with fallback data
             if risk_api:
                 try:
-                    ml_risk_score = risk_api.assess_strategy_risk(AURORA_STRATEGY_ADDRESSES["bastion"])
+                    ml_risk_score = risk_api.assess_strategy_risk(euler_STRATEGY_ADDRESSES["bastion"])
                     risk_score = ml_risk_score
                     print(f"🧠 ML Risk Score for Bastion: {ml_risk_score:.3f}")
                 except Exception as e:
@@ -321,8 +321,8 @@ bastion_provider = BastionProvider()
 # AI STRATEGY OPTIMIZER
 # ==============================================================================
 
-class AuroraAIOptimizer:
-    """AI-powered strategy optimization for Aurora protocols."""
+class eulerAIOptimizer:
+    """AI-powered strategy optimization for euler protocols."""
     
     def __init__(self):
         self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.1, api_key=OPENAI_API_KEY)
@@ -331,7 +331,7 @@ class AuroraAIOptimizer:
         """Use AI to optimize portfolio allocation."""
         try:
             prompt = f"""
-You are an expert DeFi portfolio manager for Aurora ecosystem. 
+You are an expert DeFi portfolio manager for euler ecosystem. 
 
 Current Protocol Data:
 {json.dumps(current_data, indent=2)}
@@ -343,7 +343,7 @@ Risk Constraints:
 - Max 50% in any single protocol
 - Min 5% reserve for liquidity
 - Target risk-adjusted returns
-- Consider Aurora gas advantages
+- Consider euler gas advantages
 
 Generate optimal allocation as JSON with allocation percentages that sum to 1.0:
 {{"ref_finance": 0.XX, "trisolaris": 0.XX, "bastion": 0.XX, "reserve": 0.XX}}
@@ -353,7 +353,7 @@ Consider:
 2. TVL and liquidity depth
 3. Historical performance
 4. Current market conditions
-5. Aurora ecosystem advantages
+5. euler ecosystem advantages
 
 Respond with ONLY the JSON allocation object.
 """
@@ -394,16 +394,16 @@ Respond with ONLY the JSON allocation object.
         
         return True
 
-ai_optimizer = AuroraAIOptimizer()
+ai_optimizer = eulerAIOptimizer()
 
 # ==============================================================================
 # MULTI-STRATEGY TOOLS
 # ==============================================================================
 
 @tool
-def analyze_aurora_yields() -> str:
-    """Analyze real-time yields across all Aurora DeFi protocols."""
-    print("🔍 Analyzing Aurora yields...")
+def analyze_euler_yields() -> str:
+    """Analyze real-time yields across all euler DeFi protocols."""
+    print("🔍 Analyzing euler yields...")
     
     try:
         # Gather data from all protocols
@@ -431,7 +431,7 @@ def analyze_aurora_yields() -> str:
         optimal_allocation = ai_optimizer.optimize_allocation(protocols)
         
         return f"""
-🌐 Aurora DeFi Yield Analysis:
+🌐 euler DeFi Yield Analysis:
 
 📊 Protocol Performance:
 ├─ Ref Finance: {ref_data['estimated_apy']:.1f}% APY (Risk: {ref_data.get('risk_score', 0.5):.2f})
@@ -448,11 +448,11 @@ def analyze_aurora_yields() -> str:
         """
         
     except Exception as e:
-        return f"❌ Error analyzing Aurora yields: {e}"
+        return f"❌ Error analyzing euler yields: {e}"
 
 @tool
 def execute_multi_strategy_rebalance() -> str:
-    """Execute AI-optimized rebalancing across Aurora protocols."""
+    """Execute AI-optimized rebalancing across euler protocols."""
     print("⚖️ Executing multi-strategy rebalance...")
     
     try:
@@ -481,9 +481,9 @@ def execute_multi_strategy_rebalance() -> str:
         
         # Execute rebalancing using deployed strategy addresses
         strategy_addresses = [
-            AURORA_STRATEGY_ADDRESSES["ref_finance"],
-            AURORA_STRATEGY_ADDRESSES["trisolaris"], 
-            AURORA_STRATEGY_ADDRESSES["bastion"]
+            euler_STRATEGY_ADDRESSES["ref_finance"],
+            euler_STRATEGY_ADDRESSES["trisolaris"], 
+            euler_STRATEGY_ADDRESSES["bastion"]
         ]
         
         target_values = [
@@ -527,9 +527,9 @@ def execute_multi_strategy_rebalance() -> str:
         return f"❌ Rebalancing failed: {e}"
 
 @tool
-def harvest_all_aurora_yields() -> str:
-    """Harvest and compound yields from all Aurora strategies."""
-    print("🌾 Harvesting all Aurora yields...")
+def harvest_all_euler_yields() -> str:
+    """Harvest and compound yields from all euler strategies."""
+    print("🌾 Harvesting all euler yields...")
     
     try:
         harvested_amounts = {}
@@ -537,9 +537,9 @@ def harvest_all_aurora_yields() -> str:
         
         # Harvest each deployed strategy
         strategies = [
-            ("Ref Finance", AURORA_STRATEGY_ADDRESSES["ref_finance"]),
-            ("TriSolaris", AURORA_STRATEGY_ADDRESSES["trisolaris"]),
-            ("Bastion", AURORA_STRATEGY_ADDRESSES["bastion"])
+            ("Ref Finance", euler_STRATEGY_ADDRESSES["ref_finance"]),
+            ("TriSolaris", euler_STRATEGY_ADDRESSES["trisolaris"]),
+            ("Bastion", euler_STRATEGY_ADDRESSES["bastion"])
         ]
         
         for strategy_name, strategy_address in strategies:
@@ -572,7 +572,7 @@ def harvest_all_aurora_yields() -> str:
                 harvested_amounts[strategy_name] = 0
         
         return f"""
-🌾 Aurora Yield Harvest Complete!
+🌾 euler Yield Harvest Complete!
 
 💰 Harvested Yields:
 ├─ Ref Finance: {harvested_amounts.get('Ref Finance', 0):.2f} USDC
@@ -581,7 +581,7 @@ def harvest_all_aurora_yields() -> str:
 
 💎 Total Harvested: {total_harvested:.2f} USDC
 🔄 Auto-compounding enabled for optimal growth
-⚡ Low Aurora gas costs = Higher net yields
+⚡ Low euler gas costs = Higher net yields
         """
         
     except Exception as e:
@@ -626,7 +626,7 @@ def mint_test_usdc(amount_usdc: float = 1000.0) -> str:
 └─ Gas Used: {receipt.gasUsed:,}
 
 ✅ Ready for vault testing!
-💡 You can now deposit into the Aurora vault
+💡 You can now deposit into the euler vault
         """
         
     except Exception as e:
@@ -634,7 +634,7 @@ def mint_test_usdc(amount_usdc: float = 1000.0) -> str:
 
 @tool
 def test_vault_deposit(amount_usdc: float = 100.0) -> str:
-    """Test deposit into the deployed Aurora Multi-Strategy Vault."""
+    """Test deposit into the deployed euler Multi-Strategy Vault."""
     print(f"💰 Testing vault deposit: {amount_usdc} USDC")
     
     try:
@@ -708,7 +708,7 @@ def test_vault_deposit(amount_usdc: float = 100.0) -> str:
 ├─ Share Price: {(total_assets/vault_shares) if vault_shares > 0 else 1:.6f} USDC/share
 └─ TX Hash: {tx_hash.hex()}
 
-🎯 Your Aurora Multi-Strategy Vault is working!
+🎯 Your euler Multi-Strategy Vault is working!
 ⚡ Ready for real user deposits and AI optimization
         """
         
@@ -747,7 +747,7 @@ def get_strategy_balances() -> str:
         vault_idle = usdc_contract.functions.balanceOf(MULTI_VAULT_ADDRESS).call() / (10**6)
         
         return f"""
-📊 Aurora Strategy Balance Report:
+📊 euler Strategy Balance Report:
 
 💰 Individual Strategy Balances:
 ├─ Ref Finance: {strategy_balances.get('Ref Finance', 0):.2f} USDC
@@ -770,9 +770,9 @@ def get_strategy_balances() -> str:
         return f"❌ Error getting strategy balances: {e}"
 
 @tool
-def aurora_risk_monitor() -> str:
-    """Monitor risk levels across Aurora protocols."""
-    print("🛡️ Monitoring Aurora protocol risks...")
+def euler_risk_monitor() -> str:
+    """Monitor risk levels across euler protocols."""
+    print("🛡️ Monitoring euler protocol risks...")
     
     try:
         risk_summary = {
@@ -816,7 +816,7 @@ def aurora_risk_monitor() -> str:
             risk_summary["alerts"].append("🚨 EMERGENCY: Consider exit strategy")
         
         return f"""
-🛡️ Aurora Risk Monitor Report:
+🛡️ euler Risk Monitor Report:
 
 📊 Overall Portfolio Risk: {weighted_risk:.2f} {'🟢 LOW' if weighted_risk < 0.4 else '🟡 MEDIUM' if weighted_risk < 0.7 else '🔴 HIGH'}
 
@@ -828,7 +828,7 @@ def aurora_risk_monitor() -> str:
 🚨 Alerts: {len(risk_summary['alerts'])}
 {chr(10).join(f"   • {alert}" for alert in risk_summary['alerts']) if risk_summary['alerts'] else "   • No active alerts"}
 
-✅ Aurora Advantages: Lower systemic risk due to newer ecosystem and NEAR security
+✅ euler Advantages: Lower systemic risk due to newer ecosystem and NEAR security
         """
         
     except Exception as e:
@@ -872,7 +872,7 @@ def get_multi_vault_status() -> str:
             ref_balance = tri_balance = bastion_balance = 0
         
         return f"""
-🏦 Aurora Multi-Strategy Vault Status:
+🏦 euler Multi-Strategy Vault Status:
 
 💰 Assets Under Management:
 ├─ Total Assets: {total_usdc:.2f} USDC
@@ -897,15 +897,15 @@ def get_multi_vault_status() -> str:
 
 🌐 Deployed Contracts:
 ├─ Vault: {MULTI_VAULT_ADDRESS}
-├─ Ref Strategy: {AURORA_STRATEGY_ADDRESSES['ref_finance']}
-├─ Tri Strategy: {AURORA_STRATEGY_ADDRESSES['trisolaris']}
-└─ Bastion Strategy: {AURORA_STRATEGY_ADDRESSES['bastion']}
+├─ Ref Strategy: {euler_STRATEGY_ADDRESSES['ref_finance']}
+├─ Tri Strategy: {euler_STRATEGY_ADDRESSES['trisolaris']}
+└─ Bastion Strategy: {euler_STRATEGY_ADDRESSES['bastion']}
 
-🌟 Aurora Advantages:
+🌟 euler Advantages:
 ├─ Gas costs: ~$0.01 vs $50+ on Ethereum
 ├─ Transaction speed: 2-3 seconds
 ├─ NEAR ecosystem integration
-└─ First-mover advantage in Aurora DeFi AI
+└─ First-mover advantage in euler DeFi AI
 
 🤖 Agent Status: {agent_account.address}
 ⚡ Multi-strategy optimization: ACTIVE
@@ -920,19 +920,19 @@ def get_multi_vault_status() -> str:
 
 tools = [
     mint_test_usdc,
-    analyze_aurora_yields,
+    analyze_euler_yields,
     execute_multi_strategy_rebalance,
-    harvest_all_aurora_yields,
+    harvest_all_euler_yields,
     test_vault_deposit,
     get_strategy_balances,
-    aurora_risk_monitor,
+    euler_risk_monitor,
     get_multi_vault_status
 ]
 
 tool_names = [t.name for t in tools]
 
-aurora_ai_prompt = """
-You are the Aurora Multi-Strategy AI Vault Manager.
+euler_ai_prompt = """
+You are the euler Multi-Strategy AI Vault Manager.
 
 Available Tools: {tools}
 
@@ -944,7 +944,7 @@ Available tools: {tool_names}
 
 Use the following format:
 Question: {input}
-Thought: I need to help with Aurora vault management.
+Thought: I need to help with euler vault management.
 Action: [choose from {tool_names}]
 Action Input: [parameters if needed]
 Observation: [result]
@@ -954,7 +954,7 @@ Question: {input}
 Thought: {agent_scratchpad}
 """
 
-prompt = PromptTemplate.from_template(aurora_ai_prompt)
+prompt = PromptTemplate.from_template(euler_ai_prompt)
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=OPENAI_API_KEY)
 react_agent = create_react_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(
@@ -971,8 +971,8 @@ agent_executor = AgentExecutor(
 # ==============================================================================
 
 app = FastAPI(
-    title="Aurora Multi-Strategy AI Vault",
-    description="AI-powered yield optimization across Aurora DeFi protocols",
+    title="euler Multi-Strategy AI Vault",
+    description="AI-powered yield optimization across euler DeFi protocols",
     version="2.0.0"
 )
 
@@ -990,7 +990,7 @@ class BackgroundScheduler:
         while self.running:
             try:
                 print("🤖 Running automated optimization...")
-                result = analyze_aurora_yields.invoke({})
+                result = analyze_euler_yields.invoke({})
                 print(f"📊 Analysis result: {result[:200]}...")
                 
                 # Auto-rebalance if beneficial
@@ -1011,7 +1011,7 @@ async def startup_event():
 
 @app.post("/invoke-agent")
 async def invoke_agent(request: AgentRequest):
-    """Invoke the Aurora AI agent with enhanced capabilities."""
+    """Invoke the euler AI agent with enhanced capabilities."""
     try:
         response = await agent_executor.ainvoke({
             "input": request.command,
@@ -1052,7 +1052,7 @@ async def force_rebalance():
 async def force_harvest():
     """Force yield harvesting."""
     try:
-        result = harvest_all_aurora_yields.invoke({})
+        result = harvest_all_euler_yields.invoke({})
         return {"success": True, "result": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -1061,7 +1061,7 @@ async def force_harvest():
 async def get_yields():
     """Get current yield analysis."""
     try:
-        result = analyze_aurora_yields.invoke({})
+        result = analyze_euler_yields.invoke({})
         return {"success": True, "analysis": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -1070,7 +1070,7 @@ async def get_yields():
 async def get_risk_status():
     """Get risk monitoring status."""
     try:
-        result = aurora_risk_monitor.invoke({})
+        result = euler_risk_monitor.invoke({})
         return {"success": True, "risk_report": result}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -1101,7 +1101,7 @@ async def health_check():
             "success": True,
             "health": {
                 "status": "healthy",
-                "aurora_connected": True,
+                "euler_connected": True,
                 "latest_block": latest_block,
                 "agent_balance_eth": w3.from_wei(agent_balance, 'ether'),
                 "vault_balance_usdc": vault_balance / 10**6,
@@ -1119,17 +1119,17 @@ async def health_check():
 @app.get("/")
 def read_root():
     return {
-        "message": "🚀 Aurora Multi-Strategy AI Vault - PRODUCTION READY",
+        "message": "🚀 euler Multi-Strategy AI Vault - PRODUCTION READY",
         "version": "2.0.0",
         "features": [
             "Multi-Protocol Yield Optimization",
             "AI-Powered Portfolio Rebalancing", 
             "Real-time Risk Monitoring",
             "Automated Yield Harvesting",
-            "Aurora Gas Cost Optimization",
+            "euler Gas Cost Optimization",
             "24/7 Autonomous Operation"
         ],
-        "protocols": list(AURORA_PROTOCOLS.keys()),
+        "protocols": list(euler_PROTOCOLS.keys()),
         "endpoints": [
             "/invoke-agent - Full AI agent interaction",
             "/rebalance - Force portfolio rebalancing",
@@ -1139,21 +1139,21 @@ def read_root():
             "/status - Vault status dashboard",
             "/health - System health check"
         ],
-        "aurora_advantages": [
+        "euler_advantages": [
             "100x lower gas costs vs Ethereum",
             "2-3 second transaction finality",
             "NEAR ecosystem integration",
-            "First-mover advantage in Aurora DeFi AI"
+            "First-mover advantage in euler DeFi AI"
         ]
     }
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Launching Aurora Multi-Strategy AI Vault...")
+    print("🚀 Launching euler Multi-Strategy AI Vault...")
     print(f"🤖 Agent: {agent_account.address}")
     print(f"🏦 Vault: {MULTI_VAULT_ADDRESS}")
-    print(f"📊 Protocols: {len(AURORA_PROTOCOLS)} integrated")
-    print(f"🎯 Expected Portfolio APY: {sum(p['expected_apy'] * DEFAULT_ALLOCATION.get(k.replace('_', ''), 0) for k, p in AURORA_PROTOCOLS.items() if 'expected_apy' in p):.1f}%")
+    print(f"📊 Protocols: {len(euler_PROTOCOLS)} integrated")
+    print(f"🎯 Expected Portfolio APY: {sum(p['expected_apy'] * DEFAULT_ALLOCATION.get(k.replace('_', ''), 0) for k, p in euler_PROTOCOLS.items() if 'expected_apy' in p):.1f}%")
     print("⚡ Starting with automated optimization...")
     
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -20,6 +20,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableBranch, RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.output_parsers import JsonOutputParser
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Import your Unichain configuration
 from unichain_config import *
@@ -613,6 +615,21 @@ app = FastAPI(
     title="Unichain EulerSwap Vault Agent",
     description="AI agent for managing deployed EulerSwap vaults on Unichain",
     version="2.0.0-router" # New version
+)
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000", # React default
+    "http://localhost:5173", # Vite default
+    "http://localhost:8080", # Vue default
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allow all methods 
+    allow_headers=["*"], # & Allow all headers
 )
 
 class AgentRequest(BaseModel):

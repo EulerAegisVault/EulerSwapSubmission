@@ -16,7 +16,10 @@ from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_core.prompts import PromptTemplate
 from langchain.tools import tool
-
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableBranch, RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import JsonOutputParser
 
 # Import your Unichain configuration
 from unichain_config import *
@@ -434,93 +437,182 @@ def assess_strategy_risk(strategy_address: str = None) -> str:
     except Exception as e:
         return f"Risk assessment failed: {e}"
 
-# ============ LANGCHAIN AGENT SETUP ============
+# ============ LANGCHAIN AGENT & ROUTER SETUP (BETTER & REVISED) :P ============
 
-tools = [
-    get_unichain_vault_status,
+# --- 1. DEFINE SPECIALIZED TOOLSETS ---
+# Create specific tool lists for each agent to enforce strict guardrails.
+
+# Tools that perform on-chain transactions
+transaction_tools = [
     mint_test_tokens,
     deposit_to_vault,
     deploy_to_strategy,
     harvest_strategy,
-    assess_strategy_risk
 ]
 
-# Add OpenAI tool if available
+# Tools for checking risk and getting AI advice
+risk_tools = [assess_strategy_risk]
 if OPENAI_AI_AVAILABLE:
-    tools.append(ai_strategy_advisor)
+    risk_tools.append(ai_strategy_advisor)
 
-tool_names = [t.name for t in tools]
+# A safe, read-only tool for status checks
+reporting_tools = [get_unichain_vault_status]
+
+
+# --- 1.5 CREATE THE HIGH-LEVEL PLANNER ---
+# This new agent takes a complex command and breaks it into a step-by-step plan.
+# It does NOT use tools, it only creates a plan for the other agents to follow.
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=OPENAI_API_KEY)
+
+
+planner_prompt = ChatPromptTemplate.from_template("""
+You are a master planning agent. Your job is to take a complex user request and break it down into a series of simple, single-action steps.
+Each step should be a clear command that one of the specialist agents can execute.
+
+The specialist agents are:
+- 'reporting': Checks status and balances.
+- 'transaction': Performs on-chain actions like mint, deposit, deploy, harvest.
+- 'risk_analysis': Assesses risk and gives advice.
+
+Decompose the user's command into a JSON array of steps.
+
+User command: {input}
+
+Example:
+User command: Check the vault and then deploy 50 USDC if it's safe.
+Output:
+{{
+    "steps": [
+        "Check the current vault status.",
+        "Assess the risk of the main strategy.",
+        "If the risk is low, deploy 50 USDC to the strategy."
+    ]
+}}
+
+Now, generate the plan for the user's command.
+Output:
+""")
+planner_agent = planner_prompt | llm | JsonOutputParser()
+
+# --- 2. CREATE SPECIALIST AGENTS & CHAINS ---
+# Each agent has a focused prompt and a limited set of tools.
 
 
 
-unichain_prompt = """
-You are the Unichain EulerSwap Vault Manager, an AI agent operating deployed vault contracts on Unichain.
+# A) Transaction Agent: For executing tasks
+transaction_agent_prompt = PromptTemplate.from_template("""
+You are a transaction execution specialist. Your only job is to perform on-chain actions in the correct sequence based on the user's request.
+You must ensure you have enough balance before attempting a transaction.
+You have access to these tools: {tools}
+The available tool names are: {tool_names}
 
-Your deployed system:
-- Agent Address: {agent_address}
-- USDC Vault: {usdc_vault}
-- WETH Vault: {weth_vault}  
-- EulerSwap Strategy: {strategy}
-- Network: Unichain (Chain ID: {chain_id})
-
-You have access to these tools:
-{tools}
-
-Available tool names: {tool_names}
-
-TOOL USAGE EXAMPLES:
-1. Check status: get_unichain_vault_status (no parameters)
-2. Mint tokens: mint_test_tokens with usdc_amount and weth_amount  
-3. Deposit to vault: deposit_to_vault with token and amount
-4. Deploy to strategy: deploy_to_strategy with amount
-5. Harvest rewards: harvest_strategy (no parameters)
-6. Assess risk: assess_strategy_risk (optional strategy_address)
-7. Get AI advice: ai_strategy_advisor with current_situation
-
-OPERATIONAL PRIORITY:
-1. Always check vault status first
-2. Ensure sufficient balances before operations
-3. Use risk assessment before strategy deployment
-4. Monitor and harvest rewards regularly
-
-Use this exact format:
+Use this format:
 Question: {input}
-Thought: I should analyze the situation and choose the right action.
+Thought: I need to execute the requested transaction. I will call the appropriate tool.
 Action: [tool_name]
-Action Input: [simple_parameter_value]
+Action Input: [tool_input]
 Observation: [result]
-... (repeat if needed)
-Thought: I have enough information to provide a comprehensive response.
-Final Answer: [detailed response with status and recommendations]
+...
+Thought: I have finished all requested transactions.
+Final Answer: A summary of the actions taken and their results.
 
-IMPORTANT: 
-- For deploy_to_strategy, use: Action Input: 50 (just the number)
-- For mint_test_tokens, use: Action Input: usdc_amount="1000", weth_amount="1"
-- For deposit_to_vault, use: Action Input: token="usdc", amount="100"
-
+Begin!
 Question: {input}
 Thought: {agent_scratchpad}
-"""
+""")
 
 
-prompt = PromptTemplate.from_template(unichain_prompt)
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=OPENAI_API_KEY)
-react_agent = create_react_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(
-    agent=react_agent,
-    tools=tools,
+
+transaction_agent = AgentExecutor(
+    agent=create_react_agent(llm, transaction_tools, transaction_agent_prompt),
+    tools=transaction_tools,
     verbose=True,
     handle_parsing_errors=True,
-    max_iterations=5,
+    max_iterations=5, # Allow for multi-step transactions (e.g., mint then deposit)
     early_stopping_method="force"
 )
 
-# ============ FASTAPI SERVER ============
+# B) Risk & Strategy Agent: For analysis
+risk_agent_prompt = PromptTemplate.from_template("""
+You are a DeFi risk and strategy analyst. Your goal is to assess risk and provide strategic advice.
+You have access to these tools: {tools}
+The available tool names are: {tool_names}
+
+Use this format:
+Question: {input}
+Thought: The user is asking about risk or strategy. I will use my tools to analyze the situation and provide a clear recommendation.
+Action: [tool_name]
+Action Input: [tool_input]
+Observation: [result]
+Thought: I now have the analysis results.
+Final Answer: A detailed analysis and strategic recommendation based on the tool's output.
+
+Begin!
+Question: {input}
+Thought: {agent_scratchpad}
+""")
+
+
+risk_agent = AgentExecutor(
+    agent=create_react_agent(llm, risk_tools, risk_agent_prompt),
+    tools=risk_tools,
+    verbose=True
+)
+
+# C) Reporting Chain: A simple, non-agentic chain for safety and speed
+def run_reporting_chain(data):
+    """Invokes the status tool and returns a formatted summary."""
+    status = get_unichain_vault_status.invoke({})
+    prompt = ChatPromptTemplate.from_template(
+        "You are a reporting assistant. Summarize the following vault status for the user:\n\n{status}"
+    )
+    chain = prompt | llm | StrOutputParser()
+    return chain.invoke({"status": status})
+
+# D) Fallback/Conversational Chain: For general questions
+conversational_chain = (
+    ChatPromptTemplate.from_template("You are a helpful AI assistant for the Unichain EulerSwap Vault. Answer the user's question.\n\nQuestion: {input}")
+    | llm
+    | StrOutputParser()
+)
+
+
+# --- 3. CREATE THE INTENT ROUTER ---
+# This chain's only job is to classify the user's request.
+router_prompt = ChatPromptTemplate.from_template("""
+Given the user's command, classify it into one of the following intents:
+- 'reporting': The user wants to check a status, balance, or see data.
+- 'transaction': The user wants to execute an on-chain action like depositing, minting, deploying, or harvesting.
+- 'risk_analysis': The user is asking about safety, risk, strategy, or is seeking advice.
+- 'conversational': The user is asking a general question, greeting, or having a conversation.
+
+Command: {input}
+Intent:""")
+intent_router = router_prompt | llm | StrOutputParser()
+
+
+# --- 4. COMBINE EVERYTHING WITH RUNNABLEBRANCH ---
+# This is the main entrypoint that routes traffic to the correct specialist.
+main_branch = RunnableBranch(
+    (lambda x: "reporting" in x["intent"].lower(), run_reporting_chain),
+    (lambda x: "transaction" in x["intent"].lower(), transaction_agent),
+    (lambda x: "risk_analysis" in x["intent"].lower(), risk_agent),
+    conversational_chain,  # Default fallback
+)
+
+# The full chain first determines the intent, then routes to the appropriate branch.
+# RunnablePassthrough.assign adds the 'intent' to the dictionary that's passed down the chain.
+full_chain = RunnablePassthrough.assign(
+    intent=lambda x: intent_router.invoke({"input": x["input"]})
+) | main_branch
+
+# ============ FASTAPI SERVER (REVISED) ============
 
 app = FastAPI(
     title="Unichain EulerSwap Vault Agent",
     description="AI agent for managing deployed EulerSwap vaults on Unichain",
-    version="1.0.0"
+    version="2.0.0-router" # New version
 )
 
 class AgentRequest(BaseModel):
@@ -528,24 +620,59 @@ class AgentRequest(BaseModel):
 
 @app.post("/invoke-agent")
 async def invoke_agent(request: AgentRequest):
-    """Invoke the Unichain vault management agent."""
+    """Invoke the Unichain agent system with a high-level planner."""
+    print(f"\n🚀 Received command: '{request.command}'")
     try:
-        tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
+        # --- Step 1: Create a plan using the Planner Agent ---
+        print("🤔 Generating a plan...")
+        plan = await planner_agent.ainvoke({"input": request.command})
+        print(f"📝 Plan created: {plan['steps']}")
+
+        # --- Step 2: Execute the plan step-by-step ---
+        observations = []
+        for i, step in enumerate(plan['steps']):
+            print(f"\n▶️ Executing Step {i+1}: '{step}'")
+            
+            # Use the existing router to execute the single step
+            step_result = await full_chain.ainvoke({
+                "input": step,
+                "agent_address": agent_account.address,
+                "usdc_vault": USDC_VAULT_ADDRESS,
+                "weth_vault": WETH_VAULT_ADDRESS,
+                "strategy": EULERSWAP_STRATEGY_ADDRESS,
+                "chain_id": UNICHAIN_CHAIN_ID,
+            })
+            
+            output = step_result.get("output") if isinstance(step_result, dict) else step_result
+            print(f"✅ Step {i+1} Result: {output}")
+            observations.append(output)
+
+        # --- Step 3: Summarize the results ---
+        print("\n📝 Summarizing the results...")
+        summary_prompt = ChatPromptTemplate.from_template("""
+        You are a final response summarizer. Based on the user's original command and the results of each step, provide a single, clear, and comprehensive final answer.
+
+        Original Command: {command}
+        Execution Results:
+        {observations}
         
-        response = await agent_executor.ainvoke({
-            "input": request.command,
-            "agent_address": agent_account.address,
-            "usdc_vault": USDC_VAULT_ADDRESS,
-            "weth_vault": WETH_VAULT_ADDRESS,
-            "strategy": EULERSWAP_STRATEGY_ADDRESS,
-            "chain_id": UNICHAIN_CHAIN_ID,
-            "tools": tool_descriptions,
-            "tool_names": ", ".join(tool_names)
+        Final Answer:
+        """)
+        summary_chain = summary_prompt | llm | StrOutputParser()
+        final_answer = await summary_chain.ainvoke({
+            "command": request.command, 
+            "observations": "\n".join(f"- {obs}" for obs in observations)
         })
-        return {"success": True, "output": response["output"]}
+
+        return {"success": True, "output": final_answer}
+        
     except Exception as e:
+        import traceback
+        print(f"❌ Error in invoke_agent: {e}")
+        traceback.print_exc()
         return {"success": False, "error": str(e)}
 
+# The direct tool-calling endpoints below remain unchanged
 @app.post("/mint-tokens")
 async def mint_tokens_direct(usdc_amount: str = "1000", weth_amount: str = "1"):
     """Direct token minting endpoint with proper string parameters."""
@@ -612,24 +739,17 @@ async def health_check():
 @app.get("/")
 def read_root():
     return {
-        "message": "🚀 Unichain EulerSwap Vault Agent - Ready!",
-        "version": "1.0.0",
+        "message": "🚀 Unichain EulerSwap Vault Agent - ROUTER ENABLED!",
+        "version": "2.0.0-router",
         "network": "Unichain",
-        "deployed_contracts": {
-            "usdc_vault": USDC_VAULT_ADDRESS,
-            "weth_vault": WETH_VAULT_ADDRESS,
-            "strategy": EULERSWAP_STRATEGY_ADDRESS,
-            "vault_factory": VAULT_FACTORY_ADDRESS,
-            "strategy_factory": STRATEGY_FACTORY_ADDRESS
-        },
         "features": [
-            "Vault Management",
-            "Strategy Deployment", 
-            "Risk Assessment" if ML_RISK_AVAILABLE else "Risk Assessment (Disabled)",
-            "AI Strategy Advisor" if OPENAI_AI_AVAILABLE else "AI Strategy Advisor (Disabled)"
+            "Intent-Based Routing",
+            "Specialized Transaction Agent", 
+            "Specialized Risk Agent",
+            "Fast Reporting Chain"
         ],
         "endpoints": [
-            "/invoke-agent - AI agent interaction",
+            "/invoke-agent - AI agent router",
             "/mint-tokens - Mint test tokens",
             "/status - Vault status",
             "/health - Health check"
@@ -646,6 +766,7 @@ if __name__ == "__main__":
     print(f"🎯 Strategy: {EULERSWAP_STRATEGY_ADDRESS}")
     print(f"🧠 ML Risk: {'✅ Available' if ML_RISK_AVAILABLE else '❌ Disabled'}")
     print(f"🤖 OpenAI: {'✅ Available' if OPENAI_AI_AVAILABLE else '❌ Disabled'}")
+    print(f"\n✅ ROUTER-BASED AGENT SYSTEM IS ACTIVE")
     print(f"\n🌐 Server starting on http://localhost:8000")
     
     uvicorn.run(app, host="0.0.0.0", port=8000)

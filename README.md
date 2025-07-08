@@ -4,8 +4,6 @@
 
 This project introduces a sophisticated, autonomous asset management system designed to integrate seamlessly with the EulerSwap ecosystem. We have built an AI-powered agent that acts as an on-chain portfolio manager, leveraging machine learning for real-time risk assessment. Our system automates the complex process of liquidity provision and yield farming, creating a "set-and-forget" solution for maximizing returns from EulerSwap's unique architecture.
 
-This submission aligns with the **Advanced Builds** category, specifically addressing "Pooled EulerSwap Instances" and pioneering a novel approach to "Risk Management Tools."
-
 ---
 
 ## Table of Contents
@@ -112,15 +110,34 @@ This is our most innovative component—a proactive security layer that goes bey
 
 Follow these steps to run the entire system locally.
 
-### 0. Re-deploy the contracts
+#### 0. Deploy the contracts
 
 #### 1. Add your environment variables
+```
+UNICHAIN_RPC_URL=https://unichain-rpc.publicnode.com
+UNICHAIN_CHAIN_ID=130
+
+
+VAULT_ADDRESS="0xf0f994B4A8dB86A46a1eD4F12263c795b26703Ca"
+VRF_STRATEGY_ADDRESS="0x959e85561b3cc2E2AE9e9764f55499525E350f56"
+USDC_TOKEN_ADDRESS="0xC0933C5440c656464D1Eb1F886422bE3466B1459"
+# or your own versions
+
+AGENT_PRIVATE_KEY=
+
+OPENAI_API_KEY=
+```
 
 #### 2. Run the AI Agent
 -   Start the agent server: 
+`python euler-vault-agent/unichain_vault_agent.py`
+
 
 #### 3. Test the System
--   In a new terminal, run the test script:
+-   In a new terminal, test the endpoints, or deploy the frontend locally to interact:
+`cd frontend`
+`npm install`
+`npm run dev`
 
 ---
 

@@ -236,4 +236,57 @@ This system is built to natively integrate with the following deployed contracts
 
 - WETH eVault: 0x1f3134C3f3f8AdD904B9635acBeFC0eA0D0E1ffC
 
+- Vault Factory: 0xEc0036beC79dBCf0279dAd3bC59F6231b9F461d9
+
+- Strategy Factory: 0xa5752653c78D9254EB3082d8559b76a38C9E8563
+
+- Mock USDC: 0xC0933C5440c656464D1Eb1F886422bE3466B1459
+
+- Mock WETH: 0xf0f994B4A8dB86A46a1eD4F12263c795b26703Ca
+
 The EulerSwapStrategy uses these addresses to create and interact with liquidity pools, depositing the underlying tokens into the correct Euler Vaults (eVaults) as required by the EulerSwap protocol.
+
+
+==============================================================================================================================
+------------------------------------------------------------------------------------------------------------------------------
+==============================================================================================================================
+
+# Latest Deployment Summary:
+
+🔗 Step 1: Using Existing Mock Tokens...
+   ✅ MockUSDC: 0xC0933C5440c656464D1Eb1F886422bE3466B1459
+   ✅ MockWETH: 0xf0f994B4A8dB86A46a1eD4F12263c795b26703Ca
+
+🏭 Step 2: Deploying Slim Vault Factory...
+   ✅ VaultFactorySlim deployed at: 0xEc0036beC79dBCf0279dAd3bC59F6231b9F461d9
+
+🏭 Step 3: Deploying Strategy Factory...
+   ✅ StrategyFactory deployed at: 0xa5752653c78D9254EB3082d8559b76a38C9E8563
+
+🌐 Step 4: Using Unichain eVault Addresses...
+   📦 USDC eVault: 0x6eAe95ee783e4D862867C4e0E4c3f4B95AA682Ba
+   💎 WETH eVault: 0x1f3134C3f3f8AdD904B9635acBeFC0eA0D0E1ffC
+   ✅ eVault addresses configured from Maglev
+
+💰 Step 5: Creating USDC Vault...
+   ✅ USDC Vault created: 0xFAf4Af2Ed51cDb2967B0d204074cc2e4302F9188
+
+💎 Step 6: Creating WETH Vault...
+   ✅ WETH Vault created: 0x112b33c07deE1697d9b4A68b2BA0F66c2417635C
+
+🎯 Step 7: Creating EulerSwap Strategy...
+   ✅ Strategy created: 0x807463769044222F3b7B5F98da8d3E25e0aC44B0
+
+⚙️  Step 8: Setting up vaults...
+   ✅ Strategy added to USDC vault
+
+🎉 EulerSwap Vault System Deployment Complete!
+════════════════════════════════════════════════════════════
+🏭 Vault Factory:       0xEc0036beC79dBCf0279dAd3bC59F6231b9F461d9
+🏭 Strategy Factory:    0xa5752653c78D9254EB3082d8559b76a38C9E8563
+💰 Mock USDC:           0xC0933C5440c656464D1Eb1F886422bE3466B1459
+💎 Mock WETH:           0xf0f994B4A8dB86A46a1eD4F12263c795b26703Ca
+🏦 USDC Vault:          0xFAf4Af2Ed51cDb2967B0d204074cc2e4302F9188
+🏦 WETH Vault:          0x112b33c07deE1697d9b4A68b2BA0F66c2417635C
+🎯 EulerSwap Strategy:   0x807463769044222F3b7B5F98da8d3E25e0aC44B0
+════════════════════════════════════════════════════════════

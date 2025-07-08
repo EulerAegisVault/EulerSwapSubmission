@@ -15,13 +15,13 @@ export function AIAgent() {
     {
       id: '1',
       type: 'agent',
-      content: 'Hello! I\'m your AegisVault AI agent. I can help you manage your vaults, get insights into current strategies, give real-time vault insight and updates, and more. Try commands like the examples above.',
+      content: 'Hello! I\'m your AegisVault AI agent. I can help you manage your vaults, get insights into current strategies, give real-time vault insight and updates, and more. Note: AI features require running the backend locally.',
       timestamp: new Date(),
     }
   ]);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { invokeAgent, loading } = useApi();
+  const { invokeAgent, loading, isBackendAvailable } = useApi();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -92,12 +92,22 @@ export function AIAgent() {
       {/* Quick Commands */}
       <div className="mb-4">
         <div className="text-sm text-white/60 mb-2">Quick Commands:</div>
+        {!isBackendAvailable && (
+          <div className="mb-2 p-2 bg-amber-500/20 border border-amber-500/30 rounded-lg text-amber-400 text-xs">
+            AI Agent requires local backend. Start your Python agent to enable these features.
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
           {quickCommands.map((command, index) => (
             <button
               key={index}
               onClick={() => setInput(command)}
-              className="px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-xs text-white transition-colors"
+              className={`px-3 py-1 border border-white/20 rounded-lg text-xs transition-colors ${
+                isBackendAvailable 
+                  ? 'bg-white/10 hover:bg-white/20 text-white' 
+                  : 'bg-white/5 text-white/40 cursor-not-allowed'
+              }`}
+              disabled={!isBackendAvailable}
             >
               {command}
             </button>
@@ -163,14 +173,18 @@ export function AIAgent() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type a command or ask me anything..."
-          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-          disabled={loading}
+          placeholder={isBackendAvailable ? "Type a command or ask me anything..." : "Backend required for AI features..."}
+          className={`flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 ${
+            !isBackendAvailable ? 'opacity-50' : ''
+          }`}
+          disabled={loading || !isBackendAvailable}
         />
         <button
           onClick={handleSend}
-          disabled={!input.trim() || loading}
-          className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!input.trim() || loading || !isBackendAvailable}
+          className={`px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            !isBackendAvailable ? 'opacity-50' : ''
+          }`}
         >
           {loading ? (
             <Loader2 size={18} className="animate-spin" />

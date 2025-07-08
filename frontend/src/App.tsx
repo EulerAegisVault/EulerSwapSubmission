@@ -24,7 +24,7 @@ function App() {
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                 <div className="text-amber-400 font-medium">
-                  Run frontend and backend locally to use full functionality
+                  Vault data is live from Unichain. Run backend locally for AI agent and transactions.
                 </div>
               </div>
             </div>

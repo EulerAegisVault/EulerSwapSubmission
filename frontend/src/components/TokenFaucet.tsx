@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 export function TokenFaucet() {
   const [usdcAmount, setUsdcAmount] = useState('1000');
   const [wethAmount, setWethAmount] = useState('1');
-  const { mintTokens, loading } = useApi();
+  const { mintTokens, loading, isBackendAvailable } = useApi();
 
   const handleMint = async () => {
     if (!usdcAmount || !wethAmount) {
@@ -28,7 +28,21 @@ export function TokenFaucet() {
       <div className="flex items-center gap-3 mb-6">
         <Droplets className="w-6 h-6 text-cyan-400" />
         <h2 className="text-xl font-bold text-white">Test Token Faucet</h2>
+        {!isBackendAvailable && (
+          <div className="px-2 py-1 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+            <span className="text-amber-400 text-xs font-medium">Backend Required</span>
+          </div>
+        )}
       </div>
+
+      {!isBackendAvailable && (
+        <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+          <div className="text-amber-400 text-sm font-medium mb-1">Backend Required</div>
+          <div className="text-xs text-white/70">
+            Token minting requires your local Python backend. Start your agent to enable this feature.
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div>
@@ -76,11 +90,13 @@ export function TokenFaucet() {
 
         <button
           onClick={handleMint}
-          disabled={loading || !usdcAmount || !wethAmount}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || !usdcAmount || !wethAmount || !isBackendAvailable}
+          className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            !isBackendAvailable ? 'opacity-50' : ''
+          }`}
         >
           <Coins size={18} />
-          {loading ? 'Minting...' : 'Mint Test Tokens'}
+          {loading ? 'Minting...' : isBackendAvailable ? 'Mint Test Tokens' : 'Backend Required'}
         </button>
 
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">

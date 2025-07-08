@@ -7,7 +7,7 @@ export function VaultActions() {
   const [action, setAction] = useState<'deposit' | 'withdraw'>('deposit'); // NEW
   const [amount, setAmount] = useState('100');
   const [token, setToken] = useState<'usdc' | 'weth'>('usdc');
-  const { depositToVault, loading } = useApi();
+  const { depositToVault, loading, isBackendAvailable } = useApi();
 
   const handleAction = async () => {
     if (!amount) {
@@ -40,7 +40,21 @@ export function VaultActions() {
         <h2 className="text-xl font-bold text-white">
           {action === 'deposit' ? 'Deposit to Vault' : 'Withdraw Yield'}
         </h2>
+        {!isBackendAvailable && (
+          <div className="px-2 py-1 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+            <span className="text-amber-400 text-xs font-medium">Backend Required</span>
+          </div>
+        )}
       </div>
+
+      {!isBackendAvailable && (
+        <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+          <div className="text-amber-400 text-sm font-medium mb-1">Backend Required</div>
+          <div className="text-xs text-white/70">
+            Vault operations require your local Python backend. Start your agent to enable transactions.
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {/* Action toggle */}
@@ -121,8 +135,10 @@ export function VaultActions() {
         {/* Action Button */}
         <button
           onClick={handleAction}
-          disabled={loading || !amount}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || !amount || !isBackendAvailable}
+          className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            !isBackendAvailable ? 'opacity-50' : ''
+          }`}
         >
           {loading ? (
             <Loader2 size={18} className="animate-spin" />
@@ -135,9 +151,11 @@ export function VaultActions() {
             ? action === 'deposit'
               ? 'Depositing...'
               : 'Withdrawing...'
-            : action === 'deposit'
-              ? 'Deposit to Vault'
-              : 'Withdraw Yield'}
+            : !isBackendAvailable
+              ? 'Backend Required'
+              : action === 'deposit'
+                ? 'Deposit to Vault'
+                : 'Withdraw Yield'}
         </button>
       </div>
     </div>

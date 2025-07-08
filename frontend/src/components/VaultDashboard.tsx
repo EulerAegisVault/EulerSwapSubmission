@@ -42,7 +42,7 @@ export function VaultDashboard() {
         <StatusCard
           title="Agent Balance"
           value={vaultStatus?.agent_balances?.usdc || '0 USDC'}
-          subtitle={`${vaultStatus?.agent_balances?.weth || '0'} WETH`}
+          subtitle={`${vaultStatus?.agent_balances?.weth || '0'}`}
           icon={Activity}
           loading={loading}
         />

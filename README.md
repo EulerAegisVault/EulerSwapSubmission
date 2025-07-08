@@ -154,3 +154,76 @@ We are committed to building this project out far beyond the hackathon and have 
 4.  **Enhancing the AI & ML Core**: We will continue to train our ML risk model with more diverse on-chain data. We also plan to enhance the AI agent's decision-making capabilities, enabling it to manage more complex strategies and react to market changes with greater sophistication.
 
 5.  **Team Expansion**: We are actively looking to bring more developers on board to accelerate progress. We already know a couple of talented people who are interested in taking this project further with us, and we are excited to build out the team to realize the full potential of this AI-driven DeFi system.
+
+
+
+
+
+
+
+
+
+Quickly overview static endpoints:
+GET /health
+Provides a health check of the service, confirming connection to the blockchain and that all models are loaded.
+
+GET /status
+Directly invokes the get_unichain_vault_status tool and returns the raw JSON status.
+
+
+POST /mint-tokens
+For testing, allows the agent to directly mints test tokens. Can take usdc_amount and weth_amount as query parameters.
+
+POST /deposit
+Directly deposits tokens to a vault. Takes token and amount as query parameters.
+
+POST /deploy
+Directly deploys USDC from the vault to the strategy. Takes amount as a query parameter.
+
+Now, we could just hit a simple /status endpoint for raw data. But that traditional approach has a major limitation: it requires a rigid, one-to-one mapping of endpoints for every possible action, and it strictly requires both the intent and activation to exist externally. 
+
+curl -X POST http://localhost:8000/invoke-agent \
+-H "Content-Type: application/json" \
+-d '{"command": "What is the current vault status?"}'
+As a first simple example of our agent, our agent can be layered in to these existing requests:
+The router correctly identified the intent as 'reporting' and used the simple reporting chain to give us a clean summary, without ever touching the more complex transaction agents.
+
+But this is just the entry point.
+
+By giving the agent access to wider context—seeing all of the contract internals, on-chain data, external sources, and crucially, our machine learning risk model—we allow the agent to create complex chains of thought.
+
+It can now synthesize all this information to move beyond simple commands and act as a true, autonomous vault manager and yield farmer using our EulerSwap strategy.
+
+
+
+curl -X POST http://localhost:8000/invoke-agent -H "Content-Type: application/json" -d '{"command": "Check vault status and deploy 25 USDC to strategy"}'
+^^^ combine into one below
+
+
+Here we show an example of a multi-step command that mixes different goals. Let's give it a real-world task: I want it to check the risk of our strategy, and only if it's safe, deposit 100 USDC and then deploy that to the strategy. This is where the Planner Agent comes in."
+
+(What you do): Run the complex command. This is the most important part of the demo. Keep your eyes on the server logs.
+
+Bash
+
+curl -X POST http://localhost:8000/invoke-agent \
+-H "Content-Type: application/json" \
+-d '{"command": "First, assess the risk of the main strategy. If it seems safe, deposit 100 USDC into the vault and then deploy it."}'
+(What you say): "Watch the logs. The first thing our system does is engage the Planner. You can see the plan it created: a clear, three-step process.
+
+(Point to the logs): "Now, the system executes that plan step-by-step.
+
+Step 1: It routes the 'assess risk' task to our Risk Agent.
+
+Step 2: It routes the 'deposit' task to our firewalled Transaction Agent.
+
+Step 3: It routes the 'deploy' task, again to the Transaction Agent.
+
+Finally, after successfully completing the plan, it gives us a perfect summary of everything it did.
+
+
+This is a delta-neutral, risk-managed strategy that would take a human hours of calculation and dozens of clicks to perform manually. Our agent does it in seconds, with one command.
+
+But the ultimate vision for this system goes beyond just executing our commands faster. We've designing it to run in a fully autonomous mode, acting as a tireless vault manager even when we're offline.
+
+In this mode, the agent extends to proactively scanning online data and the mempool for profitable opportunities unique to EulerSwap, like providing Just-in-Time liquidity for large incoming swaps while constantly aided by our ML risk model evaluate the precise profit versus the execution risk.

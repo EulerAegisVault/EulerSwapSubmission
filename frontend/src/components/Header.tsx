@@ -21,9 +21,6 @@ export function Header() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="hidden md:block text-sm text-white/70">
-              Run frontend and backend locally to use full functionality
-            </div>
             <WalletConnect />
           </div>
         </div>

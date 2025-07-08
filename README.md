@@ -34,7 +34,7 @@ Our goal is to abstract this complexity away from the end-user. We've built an a
 
 Our system is built on three distinct but interconnected pillars, creating a powerful synergy between on-chain contracts, off-chain intelligence, and proactive security.
 
-
+```
 +--------------------------+      +------------------------+      +-----------------------+
 | ML Risk Assessment Model |<---->|   AI Agent (Python)    |----->| On-Chain Vault        |
 | (Scikit-learn)           |      | (LangChain & FastAPI)   |      | (Solidity / ERC-4626) |
@@ -51,6 +51,8 @@ Our system is built on three distinct but interconnected pillars, creating a pow
                                                                   | EulerSwap LP Position |
                                                                   +-----------------------+
                                                                   
+```
+
 
 ### On-Chain Layer: The Foundation
 

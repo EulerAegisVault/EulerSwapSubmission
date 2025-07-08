@@ -108,30 +108,15 @@ This is our most innovative component—a proactive security layer that goes bey
 
 ## Getting Started & How to Run
 
-Follow these steps to deploy and run the entire system locally or on a testnet.
+Follow these steps to run the entire system locally.
 
-#### 1. Prerequisites
--   Node.js (v18+) & Yarn/NPM
--   Python (v3.10+)
--   Hardhat (`npm install -g hardhat`)
+#### 1. Add your environment variables
 
-#### 2. Setup
--   Clone the repository.
--   Create a `.env` file and populate it with your `PRIVATE_KEY` and `OPENAI_API_KEY`.
--   Install blockchain dependencies: `npm install`
--   Install agent dependencies: `pip install -r requirements.txt`
+#### 2. Run the AI Agent
+-   Start the agent server: 
 
-#### 3. Deploy Contracts
--   Compile the contracts: `npx hardhat compile`
--   Place the compiled JSON files (`Vault.json`, `EulerSwapStrategy.json`, etc.) into an `abi/` folder in the root of the Python project.
--   Run the deployment script: `npx hardhat run scripts/deploy.js --network unichain`
-
-#### 4. Run the AI Agent
--   Update `config.py` with the contract addresses from the deployment output.
--   Start the agent server: `python agent.py`
-
-#### 5. Test the System
--   In a new terminal, run the test script: `python test_agent.py`
+#### 3. Test the System
+-   In a new terminal, run the test script:
 
 ---
 

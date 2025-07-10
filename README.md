@@ -37,17 +37,17 @@ Our system is built on three distinct but interconnected pillars, creating a pow
 | Mathematical Analysis   |<---->|   AI Agent (Python)    |----->| On-Chain Vault        |
 | (10+ Physics Frameworks)|      | (LangChain & FastAPI)   |      | (Solidity / ERC-4626) |
 +-------------------------+      +------------------------+      +-----------------------+
-^                               ^                              | (deploys to)
-| (quantum predictions)         |                              |
-|                               v                              v
+           ^                               ^                              | (deploys to)
+           | (quantum predictions)         |                              |
+           |                               v                              v
 +-------------------------+      +------------------------+      +-----------------------+
 | ML Risk Assessment Model|      | Mathematical Optimizer |      | EulerSwapStrategy     |
 | (Scikit-learn)          |      | (Real-time Physics)     |      +-----------------------+
 +-------------------------+      +------------------------+              |
-v
-+-----------------------+
-| EulerSwap LP Position |
-+-----------------------+
+           ^                                                              v
+           | (scores risk)                                      +-----------------------+
+           +------------------------------------------------------| EulerSwap LP Position |
+                                                                  +-----------------------+
                                                                   
 ```
 

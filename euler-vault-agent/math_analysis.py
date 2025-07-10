@@ -876,7 +876,6 @@ if __name__ == "__main__":
     print(f"   Optimal parameters: μ={info_geom_results['optimal_parameters'][0]:.3f}, σ={info_geom_results['optimal_parameters'][1]:.3f}")
     print(f"   Maximum log-likelihood: {info_geom_results['max_log_likelihood']:.3f}")
     
-    print("\n🎯 Mathematical sophistication level: ADVANCED")
     print("   ✅ Statistical Field Theory")
     print("   ✅ Stochastic Calculus") 
     print("   ✅ Optimal Control Theory")
